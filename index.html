@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ucapan Idul Fitri</title>
+    <style>
+      @font-face {
+        font-family: "CustomFont";
+        src: url("ClashDisplay-sb.ttf") format("opentype");
+      }
+
+      :root {
+        --primary-color: #8b0000;
+        --secondary-color: #ffd700;
+      }
+
+      body {
+        font-family: "CustomFont", sans-serif;
+        text-align: center;
+        background: linear-gradient(135deg, var(--primary-color), white);
+        padding: 0;
+        margin: 0;
+        color: white;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      .container {
+        max-width: 450px;
+        width: 100%;
+        margin: 40px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+        position: relative;
+        box-sizing: border-box;
+      }
+
+      input {
+        width: calc(100% - 24px);
+        padding: 12px;
+        font-size: 18px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        text-align: center;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      button,
+      #downloadLink {
+        width: 100%;
+        padding: 12px;
+        font-size: 18px;
+        border: none;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        text-align: center;
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        text-decoration: none;
+        box-sizing: border-box;
+      }
+
+      button:hover,
+      #downloadLink:hover {
+        opacity: 0.8;
+      }
+
+      .loading {
+        display: none;
+        font-size: 16px;
+        color: #8b0000;
+        font-weight: bold;
+      }
+
+      canvas {
+        display: none;
+        margin: 20px auto;
+        max-width: 100%;
+        border-radius: 8px;
+      }
+
+      #downloadSection {
+        display: none;
+        margin-top: 20px;
+      }
+
+      .footer {
+        font-size: 14px;
+        color: black;
+        text-align: center;
+        width: 100%;
+        padding: 15px 0;
+        margin-top: 20px;
+        position: relative;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h3 style="color: #8b0000">Ahlan, silakan buat kartu ucapan Idulfitri gratis:</h3>
+      <input type="text" id="nama" placeholder="Ketik nama antum disini" />
+      <button onclick="generateFlyer()">Buat Flyer</button>
+
+      <p class="loading" id="loadingText">Sedang merender gambar...</p>
+
+      <canvas id="flyerCanvas" width="1080" height="1350"></canvas>
+
+      <div id="downloadSection">
+        <button
+          id="shareButton"
+          onclick="shareImage()"
+          style="display: inline-block"
+        >
+          Bagikan Gambar
+        </button>
+        <a
+          id="downloadLink"
+          download="ucapan-idulfitri.png"
+          style="display: inline-block"
+          >Download Gambar</a
+        >
+      </div>
+    </div>
+
+    <div class="footer">
+      Made with <span style="color: white">❤</span> bi'idznillah - Powered by
+      <a
+        href="https://syathiby.github.io/"
+        target="_blank"
+        style="color: #528b6a"
+        ><b>ITS 2024</b></a
+      >
+    </div>
+
+    <script>
+      function generateFlyer() {
+        let canvas = document.getElementById("flyerCanvas");
+        let ctx = canvas.getContext("2d");
+        let nama = document.getElementById("nama").value.trim() || "Nama Antum";
+        let loadingText = document.getElementById("loadingText");
+        let downloadSection = document.getElementById("downloadSection");
+        let downloadLink = document.getElementById("downloadLink");
+
+        loadingText.style.display = "block";
+        canvas.style.display = "none";
+        downloadSection.style.display = "none";
+
+        let img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = "twibbon.png?t=" + new Date().getTime();
+
+        img.onload = function () {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          // Set font and style for name text
+          ctx.font = "40px CustomFont";
+          ctx.fillStyle = "#FFD700"; // Gold color matching the Idul Fitri text
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+
+          let posX = canvas.width / 2;
+          let posY = 1100;
+
+          // Handle text wrapping for long names
+          let maxWidth = 650; // Maximum width for text
+          let words = nama.split(" ");
+          let lines = [];
+          let currentLine = words[0];
+
+          for (let i = 1; i < words.length; i++) {
+            let testLine = currentLine + " " + words[i];
+            let metrics = ctx.measureText(testLine);
+
+            if (metrics.width > maxWidth) {
+              lines.push(currentLine);
+              currentLine = words[i];
+            } else {
+              currentLine = testLine;
+            }
+          }
+          lines.push(currentLine);
+
+          // Adjust position for multiple lines
+          let lineHeight = 50;
+          let startY = posY - ((lines.length - 1) * lineHeight) / 2;
+
+          // Draw each line
+          for (let i = 0; i < lines.length; i++) {
+            ctx.fillText(lines[i], posX, startY + i * lineHeight);
+          }
+
+          loadingText.style.display = "none";
+          canvas.style.display = "block";
+          downloadSection.style.display = "block";
+
+          // Scroll to the image
+          canvas.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+          let imageData = canvas.toDataURL("image/png");
+          downloadLink.href = imageData;
+        };
+
+        img.onerror = function () {
+          alert(
+            "Gambar tidak dapat dimuat. Periksa URL atau koneksi internet."
+          );
+          loadingText.style.display = "none";
+        };
+      }
+
+      function shareImage() {
+        let canvas = document.getElementById("flyerCanvas");
+        canvas.toBlob((blob) => {
+          let file = new File([blob], "ucapan-idulfitri.png", {
+            type: "image/png",
+          });
+          let data = { files: [file] };
+          if (navigator.canShare && navigator.canShare(data)) {
+            navigator.share(data).catch(console.error);
+          } else {
+            alert("Fitur berbagi tidak didukung di perangkat ini.");
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

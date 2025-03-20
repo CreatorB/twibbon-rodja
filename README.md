@@ -1,5 +1,13 @@
 # Twibbon Rodja - Idul Fitri Greeting Card Generator
 
+[Ucapan Ied Rodja TV - https://ucapan.rodja.co.id](https://ucapan.rodja.co.id)
+
+<div align="center" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+  <br>
+  <img src="https://raw.githubusercontent.com/CreatorB/twibbon-rodja/refs/heads/main/ss-twibbon-rodja.png" alt="Web Preview" style="max-width: 100%; height: 500px;">
+  <br>
+</div>
+
 ## Overview
 Twibbon Rodja is a simple web-based application that allows users to generate personalized Idul Fitri greeting cards. Users can input their name, and the application will render a custom flyer with their name centered on a festive Idul Fitri background. The generated image can be downloaded or shared directly.
 
@@ -50,3 +58,10 @@ Contributions are welcome! Please submit a pull request if you want to enhance t
 
 ## License
 This project is licensed under the MIT License. Feel free to modify and distribute it.
+
+
+---
+
+If you need further customization, let me know! 🚀
+
+Hasan IT Support / Syathiby 2024 | [CreatorB](https://github.com/CreatorB)

@@ -2,9 +2,13 @@
 
 [Ucapan Ied Rodja TV - https://ucapan.rodja.co.id](https://ucapan.rodja.co.id)
 
-<div align="center" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+<div align="center">
   <br>
-  <img src="https://raw.githubusercontent.com/CreatorB/twibbon-rodja/refs/heads/main/ss-twibbon-rodja.png" alt="Web Preview" style="max-width: 100%; height: 500px;">
+  <picture>
+    <source media="(max-width: 768px)" srcset="https://raw.githubusercontent.com/CreatorB/twibbon-rodja/refs/heads/main/ss-twibbon-rodja.png" width="100%">
+    <source media="(min-width: 769px)" srcset="https://raw.githubusercontent.com/CreatorB/twibbon-rodja/refs/heads/main/ss-twibbon-rodja.png" width="50%">
+    <img src="https://raw.githubusercontent.com/CreatorB/twibbon-rodja/refs/heads/main/ss-twibbon-rodja.png" alt="Web Preview" width="50%">
+  </picture>
   <br>
 </div>
 

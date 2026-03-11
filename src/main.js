@@ -24,6 +24,11 @@ const elements = {
   studioShareButton: document.getElementById("studioShareButton"),
   studioCanvas: document.getElementById("studioCanvas"),
   studioMeta: document.getElementById("studioMeta"),
+  studioGrid: document.getElementById("studioGrid"),
+  studioControls: document.getElementById("studioControls"),
+  studioActions: document.getElementById("studioActions"),
+  studioPreviewWrap: document.getElementById("studioPreviewWrap"),
+  studioMobileHint: document.getElementById("studioMobileHint"),
 
   presetXRange: document.getElementById("presetXRange"),
   presetYRange: document.getElementById("presetYRange"),
@@ -51,10 +56,15 @@ const renderState = {
   galleryToken: 0,
 };
 
+const STUDIO_HINT_STORAGE_KEY = "ycs-studio-drag-hint-dismissed";
+
 const state = {
   studioLastTextBounds: null,
+  studioHintDismissTimer: null,
   studioDrag: {
     active: false,
+    pointerId: null,
+    rafId: 0,
     startX: 0,
     startY: 0,
     startOffsetX: 0,
@@ -399,6 +409,59 @@ function setupFab() {
   });
 }
 
+function setupResponsiveStudioLayout() {
+  const { studioGrid, studioControls, studioActions, studioPreviewWrap } = elements;
+  if (!studioGrid || !studioControls || !studioActions || !studioPreviewWrap) {
+    return;
+  }
+
+  const isMobile = window.matchMedia("(max-width: 699px)").matches;
+  if (isMobile) {
+    if (studioPreviewWrap.parentElement !== studioControls) {
+      studioControls.insertBefore(studioPreviewWrap, studioActions);
+    }
+  } else if (studioPreviewWrap.parentElement !== studioGrid) {
+    studioGrid.appendChild(studioPreviewWrap);
+  }
+}
+
+function setupStudioMobileHint() {
+  const hint = elements.studioMobileHint;
+  if (!hint) {
+    return;
+  }
+
+  try {
+    if (window.localStorage.getItem(STUDIO_HINT_STORAGE_KEY) === "1") {
+      hint.classList.add("is-hidden");
+    }
+  } catch {
+    // Ignore storage errors on restricted browsers.
+  }
+}
+
+function dismissStudioMobileHint() {
+  const hint = elements.studioMobileHint;
+  if (!hint || hint.classList.contains("is-hidden") || hint.classList.contains("is-dismissing")) {
+    return;
+  }
+
+  hint.classList.add("is-dismissing");
+  if (state.studioHintDismissTimer) {
+    clearTimeout(state.studioHintDismissTimer);
+  }
+  state.studioHintDismissTimer = setTimeout(() => {
+    hint.classList.remove("is-dismissing");
+    hint.classList.add("is-hidden");
+    try {
+      window.localStorage.setItem(STUDIO_HINT_STORAGE_KEY, "1");
+    } catch {
+      // Ignore storage errors on restricted browsers.
+    }
+    state.studioHintDismissTimer = null;
+  }, 170);
+}
+
 function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -678,26 +741,65 @@ function getCanvasPointer(canvas, event) {
 }
 
 function bindStudioDrag(scheduleStudioRender) {
+  const setStudioScrollLock = (locked) => {
+    document.body.classList.toggle("no-scroll", locked);
+    elements.studioCanvas.style.touchAction = locked ? "none" : "manipulation";
+  };
+
+  const stopDrag = (event) => {
+    if (state.studioDrag.rafId) {
+      cancelAnimationFrame(state.studioDrag.rafId);
+      state.studioDrag.rafId = 0;
+    }
+
+    if (!state.studioDrag.active) {
+      setStudioScrollLock(false);
+      return;
+    }
+
+    state.studioDrag.active = false;
+    state.studioDrag.pointerId = null;
+    elements.studioCanvas.classList.remove("dragging");
+    setStudioScrollLock(false);
+
+    const pointerId = event?.pointerId;
+    if (typeof pointerId === "number" && elements.studioCanvas.hasPointerCapture(pointerId)) {
+      elements.studioCanvas.releasePointerCapture(pointerId);
+    }
+  };
+
+  const requestDragRender = () => {
+    if (state.studioDrag.rafId) {
+      return;
+    }
+    state.studioDrag.rafId = requestAnimationFrame(() => {
+      state.studioDrag.rafId = 0;
+      renderStudio();
+    });
+  };
+
   elements.studioCanvas.addEventListener("pointerdown", (event) => {
     const point = getCanvasPointer(elements.studioCanvas, event);
     if (!pointInRect(point.x, point.y, state.studioLastTextBounds)) {
+      stopDrag();
       return;
     }
 
     event.preventDefault();
     state.studioDrag.active = true;
+    state.studioDrag.pointerId = event.pointerId;
     state.studioDrag.startX = point.x;
     state.studioDrag.startY = point.y;
     state.studioDrag.startOffsetX = Number(elements.studioOffsetXRange.value);
     state.studioDrag.startOffsetY = Number(elements.studioOffsetYRange.value);
     elements.studioCanvas.classList.add("dragging");
-    document.body.classList.add("no-scroll");
-    elements.studioCanvas.style.touchAction = "none";
+    setStudioScrollLock(true);
+    dismissStudioMobileHint();
     elements.studioCanvas.setPointerCapture(event.pointerId);
   });
 
   elements.studioCanvas.addEventListener("pointermove", (event) => {
-    if (!state.studioDrag.active) {
+    if (!state.studioDrag.active || state.studioDrag.pointerId !== event.pointerId) {
       return;
     }
 
@@ -708,25 +810,41 @@ function bindStudioDrag(scheduleStudioRender) {
 
     elements.studioOffsetXRange.value = String(Math.max(-30, Math.min(30, state.studioDrag.startOffsetX + deltaX)));
     elements.studioOffsetYRange.value = String(Math.max(-30, Math.min(30, state.studioDrag.startOffsetY + deltaY)));
-    scheduleStudioRender();
+    requestDragRender();
   });
 
-  function stopDrag(event) {
+  elements.studioCanvas.addEventListener("pointerup", stopDrag);
+  elements.studioCanvas.addEventListener("pointercancel", stopDrag);
+  elements.studioCanvas.addEventListener("touchmove", (event) => {
+    if (state.studioDrag.active) {
+      event.preventDefault();
+    }
+  }, { passive: false });
+
+  document.addEventListener("pointerdown", (event) => {
     if (!state.studioDrag.active) {
       return;
     }
 
-    state.studioDrag.active = false;
-    elements.studioCanvas.classList.remove("dragging");
-    document.body.classList.remove("no-scroll");
-    elements.studioCanvas.style.touchAction = "manipulation";
-    if (elements.studioCanvas.hasPointerCapture(event.pointerId)) {
-      elements.studioCanvas.releasePointerCapture(event.pointerId);
+    if (event.target !== elements.studioCanvas) {
+      stopDrag(event);
+      return;
     }
-  }
 
-  elements.studioCanvas.addEventListener("pointerup", stopDrag);
-  elements.studioCanvas.addEventListener("pointercancel", stopDrag);
+    const point = getCanvasPointer(elements.studioCanvas, event);
+    if (!pointInRect(point.x, point.y, state.studioLastTextBounds)) {
+      stopDrag(event);
+    }
+  });
+
+  document.addEventListener("pointerup", stopDrag);
+  document.addEventListener("pointercancel", stopDrag);
+  window.addEventListener("blur", () => stopDrag());
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") {
+      stopDrag();
+    }
+  });
 }
 
 function populateControls() {
@@ -770,6 +888,12 @@ async function bootstrap() {
   initGalleryCards();
   setupTabs();
   setupFab();
+  setupResponsiveStudioLayout();
+  setupStudioMobileHint();
+
+  window.addEventListener("resize", debounce(() => {
+    setupResponsiveStudioLayout();
+  }, 120));
 
   const scheduleSimpleRender = debounce(() => {
     renderSimplePreviews();

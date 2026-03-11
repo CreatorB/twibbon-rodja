@@ -6,8 +6,6 @@ const imageCache = new Map();
 const elements = {
   tabButtons: Array.from(document.querySelectorAll(".tab-button")),
   tabPanels: Array.from(document.querySelectorAll(".tab-panel")),
-  manifestStatus: document.getElementById("manifestStatus"),
-
   simpleNameInput: document.getElementById("simpleNameInput"),
   simpleSizeSelect: document.getElementById("simpleSizeSelect"),
   simplePreviewList: document.getElementById("simplePreviewList"),
@@ -325,11 +323,6 @@ function buildSelectOptions(select, options) {
     node.textContent = option.label;
     select.appendChild(node);
   });
-}
-
-function updateManifestStatus(message, isWarning = false) {
-  elements.manifestStatus.textContent = message;
-  elements.manifestStatus.classList.toggle("warn", isWarning);
 }
 
 function activateTab(target) {
@@ -722,13 +715,6 @@ async function bootstrap() {
   const data = await loadTemplateData();
   templates = data.twibbonTemplates;
   greetingCards = data.greetingCards;
-
-  updateManifestStatus(
-    greetingCards.length
-      ? "Manifest aktif dengan template YCS dan kartu ucapan."
-      : "Manifest aktif. freeFrames masih kosong, tab Gallery siap menerima kartu ucapan.",
-    !greetingCards.length,
-  );
 
   populateControls();
   initSimpleCards();

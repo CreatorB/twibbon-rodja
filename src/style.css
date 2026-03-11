@@ -89,20 +89,6 @@ h1 {
   color: var(--muted);
 }
 
-.manifest-status {
-  margin-top: 10px;
-  font-size: 12px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  background: rgba(35, 124, 91, 0.11);
-  color: var(--pine-700);
-}
-
-.manifest-status.warn {
-  background: rgba(194, 129, 35, 0.15);
-  color: #7a5014;
-}
-
 .tabs {
   margin-top: 12px;
   display: grid;
@@ -119,7 +105,12 @@ h1 {
   background: #fffcf4;
   color: var(--pine-900);
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+.tab-button:hover:not(.active) {
+  background: #f0f7f3;
+  border-color: rgba(42, 109, 86, 0.42);
+}
+
 }
 
 .tab-button.active {
@@ -135,6 +126,12 @@ h1 {
 
 .tab-panel.active {
   display: block;
+  animation: fadeSlideIn 0.22s ease both;
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 }
 
 .card {

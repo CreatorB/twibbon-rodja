@@ -1,4 +1,4 @@
-# Twibbon Rodja - Idul Fitri Greeting Card Generator
+# [LEGACY] Twibbon Rodja - Idul Fitri Greeting Card Generator
 
 [Ucapan Ied Rodja TV - https://ucapan.rodja.co.id](https://ucapan.rodja.co.id)
 

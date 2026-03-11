@@ -167,10 +167,103 @@ Contoh minimal preset (fallback di src/templates.js):
 5. Finalisasi branch setelah semua template lolos di semua tab.
 
 ## Deploy via SSH + Git
+
+Pilih salah satu metode deploy berikut.
+
+### Deploy Cepat Production (Rekomendasi)
+Jika targetnya langsung live dan server sering OOM saat build, gunakan urutan ini:
+
+```sh
+# lokal
+cd D:/IT/HSN/syathiby/ycs/twibbon-rodja
+git checkout dev
+git pull origin dev
+npm install
+npm run build
+
+# upload ke hosting
+rsync -avz --delete -e "ssh -p 18765" dist/ u44-ymt6jwdhjg4c@ssh.rodja.co.id:~/www/ucapan.rodja.co.id/public_html/
+```
+
+Lalu verifikasi:
+```sh
+ssh u44-ymt6jwdhjg4c@ssh.rodja.co.id -p 18765
+cd ~/www/ucapan.rodja.co.id/public_html
+ls
+```
+
+Pastikan minimal ada `index.html`, `assets/`, `templates/`, `site.webmanifest`, dan `favicon.svg`.
+
+### Metode A: Build di Hosting (jika RAM server cukup)
 ```sh
 ssh u44-ymt6jwdhjg4c@ssh.rodja.co.id -p 18765
 cd ~/www/ucapan.rodja.co.id
-git pull origin main
+
+# clone pertama kali
+git clone https://github.com/CreatorB/twibbon-rodja.git public_html
+cd public_html
+
+# pilih branch yang berisi update terbaru
+git fetch origin
+git checkout dev
+git pull origin dev
+
+# install dependency dan build
+npm install
+npm run build
+
+# publish static build ke document root yang diserve
+rsync -av --delete dist/ ./
 ```
 
-Jika target hosting tidak menjalankan Node app, cukup deploy hasil static dari folder dist.
+Catatan:
+- Jika muncul error OOM saat `npm run build`, gunakan Metode B (build di lokal).
+- Untuk update berikutnya cukup ulang dari `git fetch origin` sampai `rsync dist/ ./`.
+
+### Metode B: Build di Lokal + Upload ke Hosting (disarankan)
+```sh
+# di lokal
+cd D:/IT/HSN/syathiby/ycs/twibbon-rodja
+git checkout dev
+git pull origin dev
+npm install
+npm run build
+```
+
+Upload hasil `dist` ke server (pakai salah satu):
+
+```sh
+# opsi 1 (rsync, lebih efisien)
+rsync -avz --delete -e "ssh -p 18765" dist/ u44-ymt6jwdhjg4c@ssh.rodja.co.id:~/www/ucapan.rodja.co.id/public_html/
+```
+
+```sh
+# opsi 2 (scp)
+scp -P 18765 -r dist/* u44-ymt6jwdhjg4c@ssh.rodja.co.id:~/www/ucapan.rodja.co.id/public_html/
+```
+
+Verifikasi di server:
+```sh
+ssh u44-ymt6jwdhjg4c@ssh.rodja.co.id -p 18765
+cd ~/www/ucapan.rodja.co.id/public_html
+ls
+```
+
+Pastikan ada file/folder static berikut:
+- `index.html`
+- `assets/`
+- `templates/`
+- `favicon.svg`, `icon-*.png`, `site.webmanifest`
+
+### Cek Document Root Domain
+Jika website masih menampilkan tema lama, kemungkinan document root bukan di `public_html`.
+
+Uji cepat:
+```sh
+cd ~/www/ucapan.rodja.co.id/public_html
+echo OK-DEPLOY > deploy-check.txt
+```
+
+Buka `https://ucapan.rodja.co.id/deploy-check.txt`.
+- Jika tampil `OK-DEPLOY`, berarti document root benar.
+- Jika tidak tampil, sesuaikan deploy ke folder document root yang benar dari panel hosting.

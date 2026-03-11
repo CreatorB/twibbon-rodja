@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Yayasan Cahaya Sunnah | Kartu Ucapan Resmi</title>
+    <title>YCS Twibbon</title>
     <meta
       name="description"
       content="Platform kartu ucapan resmi Yayasan Cahaya Sunnah untuk membuat dan membagikan kartu ucapan dengan tampilan rapi, cepat, dan siap pakai."
@@ -17,7 +17,7 @@
     <meta name="theme-color" content="#2a6d56" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="YCS Cards" />
+    <meta name="apple-mobile-web-app-title" content="YCS Twibbon" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="msapplication-TileColor" content="#2a6d56" />
     <link rel="canonical" href="https://ucapan.rodja.co.id/" />
@@ -29,7 +29,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="id_ID" />
     <meta property="og:site_name" content="Yayasan Cahaya Sunnah" />
-    <meta property="og:title" content="Yayasan Cahaya Sunnah | Kartu Ucapan Resmi" />
+    <meta property="og:title" content="YCS Twibbon" />
     <meta
       property="og:description"
       content="Platform kartu ucapan resmi Yayasan Cahaya Sunnah untuk membuat dan membagikan kartu ucapan dengan tampilan rapi, cepat, dan siap pakai."
@@ -41,7 +41,7 @@
     <meta property="og:image:alt" content="Preview kartu ucapan resmi Yayasan Cahaya Sunnah" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Yayasan Cahaya Sunnah | Kartu Ucapan Resmi" />
+    <meta name="twitter:title" content="YCS Twibbon" />
     <meta
       name="twitter:description"
       content="Platform kartu ucapan resmi Yayasan Cahaya Sunnah untuk membuat dan membagikan kartu ucapan dengan tampilan rapi, cepat, dan siap pakai."
@@ -60,7 +60,7 @@
           },
           {
             "@type": "WebSite",
-            "name": "Yayasan Cahaya Sunnah | Kartu Ucapan Resmi",
+            "name": "YCS Twibbon",
             "url": "https://ucapan.rodja.co.id/",
             "description": "Platform kartu ucapan resmi Yayasan Cahaya Sunnah untuk membuat dan membagikan kartu ucapan dengan tampilan rapi, cepat, dan siap pakai.",
             "publisher": {
@@ -79,8 +79,8 @@
 
     <main class="app-shell">
       <header class="hero">
-        <p class="eyebrow">YCS Cards</p>
-        <h1>Yayasan Cahaya Sunnah Kartu Ucapan</h1>
+        <p class="eyebrow">YCS Twibbon</p>
+        <h1>Yayasan Cahaya Sunnah Twibbon</h1>
         <p>Platform kartu ucapan resmi di bawah naungan Yayasan Cahaya Sunnah.</p>
       </header>
 
@@ -105,8 +105,8 @@
       </section>
 
       <section class="tab-panel" id="studioPanel">
-        <div class="card studio-grid">
-          <div class="studio-controls">
+        <div class="card studio-grid" id="studioGrid">
+          <div class="studio-controls" id="studioControls">
             <h2>Studio</h2>
             <p>Atur detail teks, geser posisi, dan upload template pribadi untuk kebutuhan personal.</p>
 
@@ -152,11 +152,17 @@
               </div>
             </div>
 
-            <div class="actions">
+            <div class="actions" id="studioActions">
               <button id="studioResetButton" type="button" class="ghost">Reset Posisi</button>
               <button id="studioDownloadButton" type="button">Download</button>
               <button id="studioShareButton" type="button">Share</button>
             </div>
+            <p class="helper studio-mobile-hint" id="studioMobileHint">
+              <span class="hint-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 2l2.2 2.2-1.2 1.2h2.5A2.5 2.5 0 0 1 18 7.9v2.5l1.2-1.2L21.4 11 17 15.4l-4.4-4.4 2.2-2.2 1.2 1.2V7.9a.5.5 0 0 0-.5-.5H13l1.2 1.2L12 10.8 7.6 6.4 9.8 4.2 12 6.4zM6 18a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1h2v1a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4v-1h2v1z"/></svg>
+              </span>
+              Tip mobile: sentuh teks di preview, lalu geser untuk atur posisi.
+            </p>
 
             <div class="preset-tools">
               <h3>Preset Helper</h3>
@@ -164,51 +170,51 @@
 
               <div class="control-row">
                 <div>
-                  <label for="presetXRange">Anchor X (%)</label>
+                  <label for="presetXRange">Anchor X (%) (geser titik awal kiri/kanan)</label>
                   <input id="presetXRange" type="range" min="10" max="90" value="50" />
                 </div>
                 <div>
-                  <label for="presetYRange">Anchor Y (%)</label>
+                  <label for="presetYRange">Anchor Y (%) (geser titik awal atas/bawah)</label>
                   <input id="presetYRange" type="range" min="10" max="95" value="78" />
                 </div>
               </div>
 
               <div class="control-row">
                 <div>
-                  <label for="presetWidthRange">Max Width (%)</label>
+                  <label for="presetWidthRange">Max Width (%) (lebar maksimal area teks)</label>
                   <input id="presetWidthRange" type="range" min="20" max="95" value="72" />
                 </div>
                 <div>
-                  <label for="presetLinesRange">Max Lines</label>
+                  <label for="presetLinesRange">Max Lines (jumlah baris maksimal)</label>
                   <input id="presetLinesRange" type="range" min="1" max="8" value="4" />
                 </div>
               </div>
 
               <div class="control-row">
                 <div>
-                  <label for="presetMinFontRange">Min Font</label>
+                  <label for="presetMinFontRange">Min Font (batas ukuran terkecil)</label>
                   <input id="presetMinFontRange" type="range" min="12" max="80" value="26" />
                 </div>
                 <div>
-                  <label for="presetMaxFontRange">Max Font</label>
+                  <label for="presetMaxFontRange">Max Font (batas ukuran terbesar)</label>
                   <input id="presetMaxFontRange" type="range" min="24" max="120" value="78" />
                 </div>
               </div>
 
               <div class="control-row">
                 <div>
-                  <label for="presetLineHeightRange">Line Height</label>
+                  <label for="presetLineHeightRange">Line Height (jarak antarbaris)</label>
                   <input id="presetLineHeightRange" type="range" min="100" max="220" value="114" />
                 </div>
               </div>
 
-              <label for="presetOutput">JSON Preset</label>
+              <label for="presetOutput">JSON Preset (hasil siap tempel ke manifest)</label>
               <textarea id="presetOutput" rows="8" readonly></textarea>
               <button id="copyPresetButton" class="ghost" type="button">Copy JSON</button>
             </div>
           </div>
 
-          <div class="studio-preview-wrap">
+          <div class="studio-preview-wrap" id="studioPreviewWrap">
             <p id="studioMeta">1080 x 1350</p>
             <canvas id="studioCanvas" width="1080" height="1350"></canvas>
             <p class="helper">Tip: tekan dan geser teks langsung pada preview untuk memindahkan posisi.</p>

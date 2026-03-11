@@ -24,6 +24,11 @@ const elements = {
   studioShareButton: document.getElementById("studioShareButton"),
   studioCanvas: document.getElementById("studioCanvas"),
   studioMeta: document.getElementById("studioMeta"),
+  studioGrid: document.getElementById("studioGrid"),
+  studioControls: document.getElementById("studioControls"),
+  studioActions: document.getElementById("studioActions"),
+  studioPreviewWrap: document.getElementById("studioPreviewWrap"),
+  studioMobileHint: document.getElementById("studioMobileHint"),
 
   presetXRange: document.getElementById("presetXRange"),
   presetYRange: document.getElementById("presetYRange"),
@@ -51,10 +56,15 @@ const renderState = {
   galleryToken: 0,
 };
 
+const STUDIO_HINT_STORAGE_KEY = "ycs-studio-drag-hint-dismissed";
+
 const state = {
   studioLastTextBounds: null,
+  studioHintDismissTimer: null,
   studioDrag: {
     active: false,
+    pointerId: null,
+    rafId: 0,
     startX: 0,
     startY: 0,
     startOffsetX: 0,
@@ -191,28 +201,63 @@ function wrapText(ctx, text, maxWidth) {
     return [""];
   }
 
-  const words = trimmed.split(/\s+/);
+  const normalized = trimmed.replace(/\s+/g, " ");
+  const words = normalized.split(" ");
   const lines = [];
-  let current = words[0];
 
-  for (let i = 1; i < words.length; i += 1) {
-    const candidate = `${current} ${words[i]}`;
-    if (ctx.measureText(candidate).width > maxWidth) {
-      lines.push(current);
-      current = words[i];
+  const breakWordToFit = (word) => {
+    const chunks = [];
+    let currentChunk = "";
+    for (const char of word) {
+      const candidate = currentChunk + char;
+      if (currentChunk && ctx.measureText(candidate).width > maxWidth) {
+        chunks.push(currentChunk);
+        currentChunk = char;
+      } else {
+        currentChunk = candidate;
+      }
+    }
+    if (currentChunk) {
+      chunks.push(currentChunk);
+    }
+    return chunks;
+  };
+
+  let currentLine = "";
+  for (const word of words) {
+    const candidate = currentLine ? `${currentLine} ${word}` : word;
+    if (ctx.measureText(candidate).width <= maxWidth) {
+      currentLine = candidate;
     } else {
-      current = candidate;
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+
+      if (ctx.measureText(word).width <= maxWidth) {
+        currentLine = word;
+      } else {
+        const chunks = breakWordToFit(word);
+        lines.push(...chunks.slice(0, -1));
+        currentLine = chunks[chunks.length - 1] || "";
+      }
     }
   }
 
-  lines.push(current);
-  return lines;
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+
+  return lines.length ? lines : [""];
 }
 
-function fitTextToBox(ctx, text, box, fontFamily, forcedFontSize = null) {
+function fitTextToBox(ctx, text, box, fontFamily, forcedFontSize = null, options = {}) {
+  const hardMin = options.allowBelowMin ? Math.min(box.minFont, options.minFloor ?? 10) : box.minFont;
+  const safePadding = Math.max(0.75, Math.min(1, options.safePadding ?? 0.94));
+  const fitWidth = box.maxWidth * safePadding;
+
   if (forcedFontSize) {
     ctx.font = `700 ${forcedFontSize}px ${fontFamily}`;
-    const lines = wrapText(ctx, text, box.maxWidth);
+    const lines = wrapText(ctx, text, fitWidth);
     return {
       fontSize: forcedFontSize,
       lines: lines.slice(0, box.maxLines),
@@ -221,11 +266,11 @@ function fitTextToBox(ctx, text, box, fontFamily, forcedFontSize = null) {
   }
 
   let size = box.maxFont;
-  while (size >= box.minFont) {
+  while (size >= hardMin) {
     ctx.font = `700 ${size}px ${fontFamily}`;
-    const lines = wrapText(ctx, text, box.maxWidth);
+    const lines = wrapText(ctx, text, fitWidth);
     const widest = Math.max(...lines.map((line) => ctx.measureText(line).width));
-    if (lines.length <= box.maxLines && widest <= box.maxWidth) {
+    if (lines.length <= box.maxLines && widest <= fitWidth) {
       return {
         fontSize: size,
         lines,
@@ -235,11 +280,11 @@ function fitTextToBox(ctx, text, box, fontFamily, forcedFontSize = null) {
     size -= 2;
   }
 
-  ctx.font = `700 ${box.minFont}px ${fontFamily}`;
+  ctx.font = `700 ${hardMin}px ${fontFamily}`;
   return {
-    fontSize: box.minFont,
-    lines: wrapText(ctx, text, box.maxWidth).slice(0, box.maxLines),
-    lineHeight: Math.round(box.minFont * box.lineHeight),
+    fontSize: hardMin,
+    lines: wrapText(ctx, text, fitWidth).slice(0, box.maxLines),
+    lineHeight: Math.round(hardMin * box.lineHeight),
   };
 }
 
@@ -255,6 +300,7 @@ async function renderCardToCanvas({
   forcedFontSize,
   offsetX = 0,
   offsetY = 0,
+  autoShrink = false,
 }) {
   const ctx = canvas.getContext("2d");
   canvas.width = width;
@@ -277,6 +323,7 @@ async function renderCardToCanvas({
     box,
     fontFamily,
     forcedFontSize ? Math.round(forcedFontSize * (width / 1080)) : null,
+    { allowBelowMin: autoShrink, minFloor: 8, safePadding: autoShrink ? 0.88 : 0.94 },
   );
 
   const textX = width * (preset.textBox.x + offsetX);
@@ -296,9 +343,11 @@ async function renderCardToCanvas({
   ctx.shadowBlur = 0;
 
   const widestLine = Math.max(...fit.lines.map((line) => ctx.measureText(line).width));
+  const align = preset.textBox.align;
+  const boundsX = align === "left" ? textX : align === "right" ? textX - widestLine : textX - widestLine / 2;
   return {
     textBounds: {
-      x: textX - widestLine / 2,
+      x: boundsX,
       y: startY - fit.lineHeight * 0.5,
       width: widestLine,
       height: fit.lineHeight * fit.lines.length,
@@ -358,6 +407,59 @@ function setupFab() {
   elements.fabScrollTop.addEventListener("click", () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
+}
+
+function setupResponsiveStudioLayout() {
+  const { studioGrid, studioControls, studioActions, studioPreviewWrap } = elements;
+  if (!studioGrid || !studioControls || !studioActions || !studioPreviewWrap) {
+    return;
+  }
+
+  const isMobile = window.matchMedia("(max-width: 699px)").matches;
+  if (isMobile) {
+    if (studioPreviewWrap.parentElement !== studioControls) {
+      studioControls.insertBefore(studioPreviewWrap, studioActions);
+    }
+  } else if (studioPreviewWrap.parentElement !== studioGrid) {
+    studioGrid.appendChild(studioPreviewWrap);
+  }
+}
+
+function setupStudioMobileHint() {
+  const hint = elements.studioMobileHint;
+  if (!hint) {
+    return;
+  }
+
+  try {
+    if (window.localStorage.getItem(STUDIO_HINT_STORAGE_KEY) === "1") {
+      hint.classList.add("is-hidden");
+    }
+  } catch {
+    // Ignore storage errors on restricted browsers.
+  }
+}
+
+function dismissStudioMobileHint() {
+  const hint = elements.studioMobileHint;
+  if (!hint || hint.classList.contains("is-hidden") || hint.classList.contains("is-dismissing")) {
+    return;
+  }
+
+  hint.classList.add("is-dismissing");
+  if (state.studioHintDismissTimer) {
+    clearTimeout(state.studioHintDismissTimer);
+  }
+  state.studioHintDismissTimer = setTimeout(() => {
+    hint.classList.remove("is-dismissing");
+    hint.classList.add("is-hidden");
+    try {
+      window.localStorage.setItem(STUDIO_HINT_STORAGE_KEY, "1");
+    } catch {
+      // Ignore storage errors on restricted browsers.
+    }
+    state.studioHintDismissTimer = null;
+  }, 170);
 }
 
 function downloadBlob(blob, filename) {
@@ -468,6 +570,7 @@ async function renderSimplePreviews() {
       name,
       fontFamily: '"Sora", sans-serif',
       mainColor: template.textStyle?.mainColor,
+      autoShrink: true,
     });
   });
 
@@ -545,6 +648,7 @@ async function renderSimpleBlob(templateId) {
     name: elements.simpleNameInput.value.trim() || "Nama Antum",
     fontFamily: '"Sora", sans-serif',
     mainColor: template.textStyle?.mainColor,
+    autoShrink: true,
   });
 
   return new Promise((resolve) => offscreen.toBlob((blob) => resolve(blob), "image/png"));
@@ -637,47 +741,110 @@ function getCanvasPointer(canvas, event) {
 }
 
 function bindStudioDrag(scheduleStudioRender) {
-  elements.studioCanvas.addEventListener("pointerdown", (event) => {
-    const point = getCanvasPointer(elements.studioCanvas, event);
-    if (!pointInRect(point.x, point.y, state.studioLastTextBounds)) {
+  const setStudioScrollLock = (locked) => {
+    document.body.classList.toggle("no-scroll", locked);
+    elements.studioCanvas.style.touchAction = locked ? "none" : "manipulation";
+  };
+
+  const stopDrag = (event) => {
+    if (state.studioDrag.rafId) {
+      cancelAnimationFrame(state.studioDrag.rafId);
+      state.studioDrag.rafId = 0;
+    }
+
+    if (!state.studioDrag.active) {
+      setStudioScrollLock(false);
       return;
     }
 
+    state.studioDrag.active = false;
+    state.studioDrag.pointerId = null;
+    elements.studioCanvas.classList.remove("dragging");
+    setStudioScrollLock(false);
+
+    const pointerId = event?.pointerId;
+    if (typeof pointerId === "number" && elements.studioCanvas.hasPointerCapture(pointerId)) {
+      elements.studioCanvas.releasePointerCapture(pointerId);
+    }
+  };
+
+  const requestDragRender = () => {
+    if (state.studioDrag.rafId) {
+      return;
+    }
+    state.studioDrag.rafId = requestAnimationFrame(() => {
+      state.studioDrag.rafId = 0;
+      renderStudio();
+    });
+  };
+
+  elements.studioCanvas.addEventListener("pointerdown", (event) => {
+    const point = getCanvasPointer(elements.studioCanvas, event);
+    if (!pointInRect(point.x, point.y, state.studioLastTextBounds)) {
+      stopDrag();
+      return;
+    }
+
+    event.preventDefault();
     state.studioDrag.active = true;
+    state.studioDrag.pointerId = event.pointerId;
     state.studioDrag.startX = point.x;
     state.studioDrag.startY = point.y;
     state.studioDrag.startOffsetX = Number(elements.studioOffsetXRange.value);
     state.studioDrag.startOffsetY = Number(elements.studioOffsetYRange.value);
+    elements.studioCanvas.classList.add("dragging");
+    setStudioScrollLock(true);
+    dismissStudioMobileHint();
     elements.studioCanvas.setPointerCapture(event.pointerId);
   });
 
   elements.studioCanvas.addEventListener("pointermove", (event) => {
-    if (!state.studioDrag.active) {
+    if (!state.studioDrag.active || state.studioDrag.pointerId !== event.pointerId) {
       return;
     }
 
+    event.preventDefault();
     const point = getCanvasPointer(elements.studioCanvas, event);
     const deltaX = ((point.x - state.studioDrag.startX) / elements.studioCanvas.width) * 100;
     const deltaY = ((point.y - state.studioDrag.startY) / elements.studioCanvas.height) * 100;
 
     elements.studioOffsetXRange.value = String(Math.max(-30, Math.min(30, state.studioDrag.startOffsetX + deltaX)));
     elements.studioOffsetYRange.value = String(Math.max(-30, Math.min(30, state.studioDrag.startOffsetY + deltaY)));
-    scheduleStudioRender();
+    requestDragRender();
   });
 
-  function stopDrag(event) {
+  elements.studioCanvas.addEventListener("pointerup", stopDrag);
+  elements.studioCanvas.addEventListener("pointercancel", stopDrag);
+  elements.studioCanvas.addEventListener("touchmove", (event) => {
+    if (state.studioDrag.active) {
+      event.preventDefault();
+    }
+  }, { passive: false });
+
+  document.addEventListener("pointerdown", (event) => {
     if (!state.studioDrag.active) {
       return;
     }
 
-    state.studioDrag.active = false;
-    if (elements.studioCanvas.hasPointerCapture(event.pointerId)) {
-      elements.studioCanvas.releasePointerCapture(event.pointerId);
+    if (event.target !== elements.studioCanvas) {
+      stopDrag(event);
+      return;
     }
-  }
 
-  elements.studioCanvas.addEventListener("pointerup", stopDrag);
-  elements.studioCanvas.addEventListener("pointercancel", stopDrag);
+    const point = getCanvasPointer(elements.studioCanvas, event);
+    if (!pointInRect(point.x, point.y, state.studioLastTextBounds)) {
+      stopDrag(event);
+    }
+  });
+
+  document.addEventListener("pointerup", stopDrag);
+  document.addEventListener("pointercancel", stopDrag);
+  window.addEventListener("blur", () => stopDrag());
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") {
+      stopDrag();
+    }
+  });
 }
 
 function populateControls() {
@@ -721,6 +888,12 @@ async function bootstrap() {
   initGalleryCards();
   setupTabs();
   setupFab();
+  setupResponsiveStudioLayout();
+  setupStudioMobileHint();
+
+  window.addEventListener("resize", debounce(() => {
+    setupResponsiveStudioLayout();
+  }, 120));
 
   const scheduleSimpleRender = debounce(() => {
     renderSimplePreviews();

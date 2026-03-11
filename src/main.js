@@ -191,28 +191,63 @@ function wrapText(ctx, text, maxWidth) {
     return [""];
   }
 
-  const words = trimmed.split(/\s+/);
+  const normalized = trimmed.replace(/\s+/g, " ");
+  const words = normalized.split(" ");
   const lines = [];
-  let current = words[0];
 
-  for (let i = 1; i < words.length; i += 1) {
-    const candidate = `${current} ${words[i]}`;
-    if (ctx.measureText(candidate).width > maxWidth) {
-      lines.push(current);
-      current = words[i];
+  const breakWordToFit = (word) => {
+    const chunks = [];
+    let currentChunk = "";
+    for (const char of word) {
+      const candidate = currentChunk + char;
+      if (currentChunk && ctx.measureText(candidate).width > maxWidth) {
+        chunks.push(currentChunk);
+        currentChunk = char;
+      } else {
+        currentChunk = candidate;
+      }
+    }
+    if (currentChunk) {
+      chunks.push(currentChunk);
+    }
+    return chunks;
+  };
+
+  let currentLine = "";
+  for (const word of words) {
+    const candidate = currentLine ? `${currentLine} ${word}` : word;
+    if (ctx.measureText(candidate).width <= maxWidth) {
+      currentLine = candidate;
     } else {
-      current = candidate;
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+
+      if (ctx.measureText(word).width <= maxWidth) {
+        currentLine = word;
+      } else {
+        const chunks = breakWordToFit(word);
+        lines.push(...chunks.slice(0, -1));
+        currentLine = chunks[chunks.length - 1] || "";
+      }
     }
   }
 
-  lines.push(current);
-  return lines;
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+
+  return lines.length ? lines : [""];
 }
 
-function fitTextToBox(ctx, text, box, fontFamily, forcedFontSize = null) {
+function fitTextToBox(ctx, text, box, fontFamily, forcedFontSize = null, options = {}) {
+  const hardMin = options.allowBelowMin ? Math.min(box.minFont, options.minFloor ?? 10) : box.minFont;
+  const safePadding = Math.max(0.75, Math.min(1, options.safePadding ?? 0.94));
+  const fitWidth = box.maxWidth * safePadding;
+
   if (forcedFontSize) {
     ctx.font = `700 ${forcedFontSize}px ${fontFamily}`;
-    const lines = wrapText(ctx, text, box.maxWidth);
+    const lines = wrapText(ctx, text, fitWidth);
     return {
       fontSize: forcedFontSize,
       lines: lines.slice(0, box.maxLines),
@@ -221,11 +256,11 @@ function fitTextToBox(ctx, text, box, fontFamily, forcedFontSize = null) {
   }
 
   let size = box.maxFont;
-  while (size >= box.minFont) {
+  while (size >= hardMin) {
     ctx.font = `700 ${size}px ${fontFamily}`;
-    const lines = wrapText(ctx, text, box.maxWidth);
+    const lines = wrapText(ctx, text, fitWidth);
     const widest = Math.max(...lines.map((line) => ctx.measureText(line).width));
-    if (lines.length <= box.maxLines && widest <= box.maxWidth) {
+    if (lines.length <= box.maxLines && widest <= fitWidth) {
       return {
         fontSize: size,
         lines,
@@ -235,11 +270,11 @@ function fitTextToBox(ctx, text, box, fontFamily, forcedFontSize = null) {
     size -= 2;
   }
 
-  ctx.font = `700 ${box.minFont}px ${fontFamily}`;
+  ctx.font = `700 ${hardMin}px ${fontFamily}`;
   return {
-    fontSize: box.minFont,
-    lines: wrapText(ctx, text, box.maxWidth).slice(0, box.maxLines),
-    lineHeight: Math.round(box.minFont * box.lineHeight),
+    fontSize: hardMin,
+    lines: wrapText(ctx, text, fitWidth).slice(0, box.maxLines),
+    lineHeight: Math.round(hardMin * box.lineHeight),
   };
 }
 
@@ -255,6 +290,7 @@ async function renderCardToCanvas({
   forcedFontSize,
   offsetX = 0,
   offsetY = 0,
+  autoShrink = false,
 }) {
   const ctx = canvas.getContext("2d");
   canvas.width = width;
@@ -277,6 +313,7 @@ async function renderCardToCanvas({
     box,
     fontFamily,
     forcedFontSize ? Math.round(forcedFontSize * (width / 1080)) : null,
+    { allowBelowMin: autoShrink, minFloor: 8, safePadding: autoShrink ? 0.88 : 0.94 },
   );
 
   const textX = width * (preset.textBox.x + offsetX);
@@ -296,9 +333,11 @@ async function renderCardToCanvas({
   ctx.shadowBlur = 0;
 
   const widestLine = Math.max(...fit.lines.map((line) => ctx.measureText(line).width));
+  const align = preset.textBox.align;
+  const boundsX = align === "left" ? textX : align === "right" ? textX - widestLine : textX - widestLine / 2;
   return {
     textBounds: {
-      x: textX - widestLine / 2,
+      x: boundsX,
       y: startY - fit.lineHeight * 0.5,
       width: widestLine,
       height: fit.lineHeight * fit.lines.length,
@@ -468,6 +507,7 @@ async function renderSimplePreviews() {
       name,
       fontFamily: '"Sora", sans-serif',
       mainColor: template.textStyle?.mainColor,
+      autoShrink: true,
     });
   });
 
@@ -545,6 +585,7 @@ async function renderSimpleBlob(templateId) {
     name: elements.simpleNameInput.value.trim() || "Nama Antum",
     fontFamily: '"Sora", sans-serif',
     mainColor: template.textStyle?.mainColor,
+    autoShrink: true,
   });
 
   return new Promise((resolve) => offscreen.toBlob((blob) => resolve(blob), "image/png"));
@@ -643,11 +684,15 @@ function bindStudioDrag(scheduleStudioRender) {
       return;
     }
 
+    event.preventDefault();
     state.studioDrag.active = true;
     state.studioDrag.startX = point.x;
     state.studioDrag.startY = point.y;
     state.studioDrag.startOffsetX = Number(elements.studioOffsetXRange.value);
     state.studioDrag.startOffsetY = Number(elements.studioOffsetYRange.value);
+    elements.studioCanvas.classList.add("dragging");
+    document.body.classList.add("no-scroll");
+    elements.studioCanvas.style.touchAction = "none";
     elements.studioCanvas.setPointerCapture(event.pointerId);
   });
 
@@ -656,6 +701,7 @@ function bindStudioDrag(scheduleStudioRender) {
       return;
     }
 
+    event.preventDefault();
     const point = getCanvasPointer(elements.studioCanvas, event);
     const deltaX = ((point.x - state.studioDrag.startX) / elements.studioCanvas.width) * 100;
     const deltaY = ((point.y - state.studioDrag.startY) / elements.studioCanvas.height) * 100;
@@ -671,6 +717,9 @@ function bindStudioDrag(scheduleStudioRender) {
     }
 
     state.studioDrag.active = false;
+    elements.studioCanvas.classList.remove("dragging");
+    document.body.classList.remove("no-scroll");
+    elements.studioCanvas.style.touchAction = "manipulation";
     if (elements.studioCanvas.hasPointerCapture(event.pointerId)) {
       elements.studioCanvas.releasePointerCapture(event.pointerId);
     }

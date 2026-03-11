@@ -66,14 +66,14 @@
       "description": "Template unit Albarkah",
       "image": "twibbon-albarkah.jpeg",
       "textBox": {
-        "x": 0.25,
+        "x": 0.105,
         "y": 0.552,
-        "maxWidth": 0.46,
+        "maxWidth": 0.44,
         "maxLines": 2,
         "minFont": 17,
         "maxFont": 32,
         "lineHeight": 1,
-        "align": "center"
+        "align": "left"
       },
       "textStyle": {
         "mainColor": "#f5f1cf",

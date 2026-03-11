@@ -170,6 +170,30 @@ Contoh minimal preset (fallback di src/templates.js):
 
 Pilih salah satu metode deploy berikut.
 
+### Deploy Cepat Production (Rekomendasi)
+Jika targetnya langsung live dan server sering OOM saat build, gunakan urutan ini:
+
+```sh
+# lokal
+cd D:/IT/HSN/syathiby/ycs/twibbon-rodja
+git checkout dev
+git pull origin dev
+npm install
+npm run build
+
+# upload ke hosting
+rsync -avz --delete -e "ssh -p 18765" dist/ u44-ymt6jwdhjg4c@ssh.rodja.co.id:~/www/ucapan.rodja.co.id/public_html/
+```
+
+Lalu verifikasi:
+```sh
+ssh u44-ymt6jwdhjg4c@ssh.rodja.co.id -p 18765
+cd ~/www/ucapan.rodja.co.id/public_html
+ls
+```
+
+Pastikan minimal ada `index.html`, `assets/`, `templates/`, `site.webmanifest`, dan `favicon.svg`.
+
 ### Metode A: Build di Hosting (jika RAM server cukup)
 ```sh
 ssh u44-ymt6jwdhjg4c@ssh.rodja.co.id -p 18765

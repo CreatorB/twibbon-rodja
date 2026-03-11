@@ -28,6 +28,10 @@ body {
   padding: 14px;
 }
 
+body.no-scroll {
+  overflow: hidden;
+}
+
 .bg-glow {
   position: fixed;
   border-radius: 50%;
@@ -281,6 +285,11 @@ input[type="range"] {
   border-radius: 12px;
   border: 1px solid rgba(13, 52, 40, 0.2);
   background: #fff;
+  touch-action: manipulation;
+}
+
+#studioCanvas.dragging {
+  cursor: grabbing;
 }
 
 .actions {

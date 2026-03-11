@@ -1,8 +1,8 @@
-# YCS Twibbon
+# YCS Kartu Ucapan
 
 YCS adalah singkatan dari Yayasan Cahaya Sunnah.
 
-Web app generator twibbon berbasis Vite dengan 3 tab:
+Web app generator kartu ucapan berbasis Vite dengan 3 tab:
 
 1. Simple
 - User cukup isi nama.
@@ -41,10 +41,17 @@ npm run build
 twibbon-rodja/
   index.html
   public/
+    icon-32.png
+    icon-180.png
+    icon-192.png
+    icon-512.png
+    favicon.svg
+    og-image-1200x630.png
+    site.webmanifest
     templates/
       manifest.json
       ycs-frame/
-      free-frame/
+      galleries/
   src/
     main.js
     style.css
@@ -52,8 +59,8 @@ twibbon-rodja/
 ```
 
 ## Workflow Template Untuk Tim Designer
-1. Simpan twibbon resmi di folder public/templates/ycs-frame.
-2. Simpan kartu ucapan siap pakai di folder public/templates/free-frame.
+1. Simpan frame resmi di folder public/templates/ycs-frame.
+2. Simpan kartu ucapan siap pakai di folder public/templates/galleries.
 3. Edit daftar template di public/templates/manifest.json.
 4. Tidak perlu edit logic rendering di src/main.js.
 
@@ -65,7 +72,7 @@ Struktur manifest yang dipakai:
 }
 ```
 
-Contoh entri twibbon pada ycsTemplates:
+Contoh entri frame pada ycsTemplates:
 ```json
 {
   "id": "kajian-ramadhan-1",
@@ -106,11 +113,11 @@ Contoh entri kartu ucapan pada freeFrames:
 ## Kalibrasi Preset Dengan Preset Helper
 1. Buka tab Studio.
 2. Pilih template yang ingin dikalibrasi.
-3. Atur slider Preset Helper: Anchor X/Y, Max Width, Max Lines, Min/Max Font, Line Height, Caption Offset.
+3. Atur slider Preset Helper: Anchor X/Y, Max Width, Max Lines, Min/Max Font, dan Line Height.
 4. Klik Copy JSON lalu paste ke public/templates/manifest.json pada entri template terkait.
 
 ## Menambah Kartu Ucapan (Tab Galeri)
-1. Tambahkan file gambar ke public/templates/free-frame.
+1. Tambahkan file gambar ke public/templates/galleries.
 2. Tambahkan objek kartu ke array freeFrames di public/templates/manifest.json.
 3. Cek hasilnya di tab Gallery.
 
@@ -130,12 +137,6 @@ Contoh minimal preset (fallback di src/templates.js):
     maxFont: 72,
     lineHeight: 1.16,
     align: "center"
-  },
-  captionBox: {
-    enabled: true,
-    offsetY: 0.08,
-    minFont: 16,
-    maxFont: 30
   }
 }
 ```
@@ -156,11 +157,11 @@ Contoh minimal preset (fallback di src/templates.js):
 4. Cek hasil download PNG dan pastikan resolusi sesuai pilihan ukuran.
 5. Cek fitur share di minimal 1 Android dan 1 iOS (jika tersedia).
 6. Pastikan tidak ada elemen teks menabrak logo, ornament, atau area wajah pada desain.
-7. Pastikan banner status manifest di header tidak menunjukkan warning untuk data production.
+7. Pastikan metadata dan aset share image sudah sesuai untuk production.
 
 ## Langkah Berikutnya Yang Perlu Anda Cek
-1. Siapkan template twibbon production ke public/templates/ycs-frame.
-2. Siapkan kartu ucapan siap pakai ke public/templates/free-frame.
+1. Siapkan frame production ke public/templates/ycs-frame.
+2. Siapkan kartu ucapan siap pakai ke public/templates/galleries.
 3. Isi metadata placeholder di public/templates/manifest.json.
 4. Jalankan QA checklist di atas, lalu catat template yang perlu penyesuaian textBox.
 5. Finalisasi branch setelah semua template lolos di semua tab.

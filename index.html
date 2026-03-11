@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ucapan Idul Fitri</title>
+    <title>Ucapan hari raya</title>
     <style>
       @font-face {
         font-family: "CustomFont";
@@ -40,6 +40,195 @@
         box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
         position: relative;
         box-sizing: border-box;
+      }
+
+      .step {
+        display: none;
+      }
+
+      .step.active {
+        display: block;
+      }
+
+      .step-title {
+        color: #8b0000;
+        margin-bottom: 20px;
+        font-size: 20px;
+      }
+
+      /* Carousel Styles */
+      .carousel-container {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+
+      .carousel-wrapper {
+        display: flex;
+        transition: transform 0.3s ease-in-out;
+        width: fit-content;
+      }
+
+      .template-slide {
+        display: flex;
+        gap: 15px;
+        min-width: 100%;
+        justify-content: center;
+        padding: 0 10px;
+        box-sizing: border-box;
+      }
+
+      .template-item {
+        position: relative;
+        border: 3px solid transparent;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        flex: 0 0 calc(50% - 7.5px);
+        max-width: 180px;
+      }
+
+      .template-item:hover {
+        transform: scale(1.05);
+      }
+
+      .template-item.selected {
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 12px rgba(139, 0, 0, 0.3);
+      }
+
+      .template-preview {
+        width: 100%;
+        height: 200px;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .template-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .template-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0,0,0,0.7));
+        color: white;
+        padding: 10px 5px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .carousel-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .carousel-btn {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.3s ease;
+      }
+
+      .carousel-btn:hover {
+        background: #660000;
+      }
+
+      .carousel-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .carousel-indicators {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+      }
+
+      .indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ccc;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+
+      .indicator.active {
+        background: var(--primary-color);
+      }
+
+      .template-counter {
+        color: var(--primary-color);
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      /* Live Preview Styles */
+      .preview-section {
+        margin: 20px 0;
+      }
+
+      .live-preview {
+        width: 100%;
+        max-width: 300px;
+        height: 375px;
+        margin: 0 auto;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .preview-name {
+        position: absolute;
+        bottom: 15%;
+        left: 50%;
+        transform: translateX(-50%);
+        color: var(--secondary-color);
+        font-size: 14px;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        text-align: center;
+        max-width: 180px;
+        word-wrap: break-word;
+        width: 100%;
+        line-height: 1.3;
+      }
+
+      .loading-templates {
+        text-align: center;
+        color: var(--primary-color);
+        font-weight: bold;
+        padding: 40px 0;
       }
 
       input {
@@ -85,6 +274,15 @@
         opacity: 0.8;
       }
 
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .btn-secondary {
+        background: linear-gradient(135deg, #666, #999) !important;
+      }
+
       .loading {
         display: none;
         font-size: 16px;
@@ -113,32 +311,113 @@
         margin-top: 20px;
         position: relative;
       }
+
+      .navigation {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .navigation button {
+        flex: 1;
+      }
+
+      /* Error message styles */
+      .error-message {
+        color: #8b0000;
+        background: #ffe6e6;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+        border: 1px solid #ffcccc;
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <h3 style="color: #8b0000">Ahlan, silakan buat kartu ucapan Idulfitri gratis:</h3>
-      <input type="text" id="nama" placeholder="Ketik nama antum disini" />
-      <button onclick="generateFlyer()">Buat Flyer</button>
+      <!-- Step 1: Template Selection -->
+      <div class="step active" id="step1">
+        <h3 class="step-title">Pilih Template Kartu Ucapan:</h3>
+        
+        <div id="templateLoadingMessage" class="loading-templates">
+          Memuat template...
+        </div>
+        
+        <div id="templateErrorMessage" class="error-message" style="display: none;">
+          Gagal memuat template. Pastikan folder 'template' berisi file gambar PNG.
+        </div>
+        
+        <div id="templateCarousel" style="display: none;">
+          <div class="carousel-nav">
+            <button class="carousel-btn" id="prevBtn" onclick="previousSlide()">‹</button>
+            <div class="template-counter">
+              <span id="currentPage">1</span> / <span id="totalPages">1</span>
+            </div>
+            <button class="carousel-btn" id="nextBtn" onclick="nextSlide()">›</button>
+          </div>
 
-      <p class="loading" id="loadingText">Sedang merender gambar...</p>
+          <div class="carousel-container">
+            <div class="carousel-wrapper" id="carouselWrapper">
+              <!-- Template slides will be inserted here -->
+            </div>
+          </div>
 
-      <canvas id="flyerCanvas" width="1080" height="1350"></canvas>
+          <div class="carousel-indicators" id="carouselIndicators">
+            <!-- Indicators will be inserted here -->
+          </div>
+        </div>
 
-      <div id="downloadSection">
-        <button
-          id="shareButton"
-          onclick="shareImage()"
-          style="display: inline-block"
-        >
-          Bagikan Gambar
-        </button>
-        <a
-          id="downloadLink"
-          download="ucapan-idulfitri.png"
-          style="display: inline-block"
-          >Download Gambar</a
-        >
+        <div class="navigation">
+          <button onclick="nextStep()" id="selectTemplateBtn" disabled>Lanjutkan</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Name Input with Live Preview -->
+      <div class="step" id="step2">
+        <h3 class="step-title">Lengkapi data :</h3>
+        
+        <input type="text" id="nama" placeholder="Ketik nama antum disini" oninput="updatePreview()" />
+        
+        <div class="preview-section">
+          <h4 style="color: #8b0000; margin-bottom: 10px;">Preview:</h4>
+          <div class="live-preview" id="livePreview">
+            <div class="preview-name" id="previewName">Nama Antum</div>
+          </div>
+        </div>
+
+        <div class="navigation">
+          <button class="btn-secondary" onclick="prevStep()">Kembali</button>
+          <button onclick="generateFinalCard()">Buat Kartu</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Final Card Generation -->
+      <div class="step" id="step3">
+        <h3 class="step-title">Hasil Kartu Ucapan Hari Raya:</h3>
+        
+        <p class="loading" id="loadingText">Sedang merender gambar...</p>
+
+        <canvas id="flyerCanvas" width="1080" height="1350"></canvas>
+
+        <div id="downloadSection">
+          <button
+            id="shareButton"
+            onclick="shareImage()"
+            style="display: inline-block"
+          >
+            Bagikan Gambar
+          </button>
+          <a
+            id="downloadLink"
+            download="kartu-ucapan.png"
+            style="display: inline-block"
+            >Download Gambar</a
+          >
+        </div>
+
+        <div class="navigation">
+          <button class="btn-secondary" onclick="startOver()">Buat Lagi</button>
+        </div>
       </div>
     </div>
 
@@ -153,7 +432,383 @@
     </div>
 
     <script>
-      function generateFlyer() {
+      let currentStep = 1;
+      let selectedTemplate = null;
+      let templates = [];
+      let currentSlide = 0;
+      let templatesPerSlide = 2;
+      let totalSlides = 0;
+      
+      // VARIABEL GLOBAL UNTUK MENYIMPAN HASIL TEXT PROCESSING
+      let processedTextLines = [];
+      let finalTextConfig = {};
+      
+      // Initialize on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        loadTemplates();
+      });
+
+      async function loadTemplates() {
+        try {
+          const templateFiles = [
+            'template1.png', 'template2.png', 'template3.png', 'template4.png',
+            'template5.png', 'template6.png', 'template7.png', 'template8.png',
+            'template9.png', 'template10.png', 'template11.png', 'template12.png',
+            '1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png',
+            '9.png', '10.png', '11.png', '12.png', '13.png', '14.png', '15.png', '16.png',
+            '17.png', '18.png', '19.png', '20.png'
+          ];
+
+          const loadedTemplates = [];
+          const loadPromises = templateFiles.map(async (filename, index) => {
+            return new Promise((resolve, reject) => {
+              const img = new Image();
+              img.onload = function() {
+                loadedTemplates.push({
+                  id: `template_${index}`,
+                  filename: filename,
+                  path: `template/${filename}`,
+                  name: `Template ${index + 1}`,
+                  loaded: true
+                });
+                resolve();
+              };
+              img.onerror = function() {
+                resolve();
+              };
+              img.src = `template/${filename}`;
+            });
+          });
+
+          await Promise.all(loadPromises);
+
+          if (loadedTemplates.length === 0) {
+            throw new Error('No templates found');
+          }
+
+          templates = loadedTemplates.sort((a, b) => {
+            return a.filename.localeCompare(b.filename, undefined, {numeric: true});
+          });
+
+          renderCarousel();
+          document.getElementById('templateLoadingMessage').style.display = 'none';
+          document.getElementById('templateCarousel').style.display = 'block';
+
+        } catch (error) {
+          console.error('Error loading templates:', error);
+          document.getElementById('templateLoadingMessage').style.display = 'none';
+          document.getElementById('templateErrorMessage').style.display = 'block';
+        }
+      }
+
+      function renderCarousel() {
+        if (templates.length === 0) return;
+
+        totalSlides = Math.ceil(templates.length / templatesPerSlide);
+        
+        const carouselWrapper = document.getElementById('carouselWrapper');
+        const indicators = document.getElementById('carouselIndicators');
+        
+        carouselWrapper.innerHTML = '';
+        indicators.innerHTML = '';
+
+        for (let i = 0; i < totalSlides; i++) {
+          const slide = document.createElement('div');
+          slide.className = 'template-slide';
+          
+          const startIndex = i * templatesPerSlide;
+          const endIndex = Math.min(startIndex + templatesPerSlide, templates.length);
+          
+          for (let j = startIndex; j < endIndex; j++) {
+            const template = templates[j];
+            const templateItem = document.createElement('div');
+            templateItem.className = 'template-item';
+            templateItem.setAttribute('data-template', template.id);
+            templateItem.onclick = () => selectTemplate(template.id);
+            
+            templateItem.innerHTML = `
+              <div class="template-preview">
+                <img src="${template.path}" alt="${template.name}" loading="lazy">
+                <div class="template-overlay">${template.name}</div>
+              </div>
+            `;
+            
+            slide.appendChild(templateItem);
+          }
+          
+          carouselWrapper.appendChild(slide);
+          
+          const indicator = document.createElement('div');
+          indicator.className = `indicator ${i === 0 ? 'active' : ''}`;
+          indicator.onclick = () => goToSlide(i);
+          indicators.appendChild(indicator);
+        }
+
+        updateCarouselNavigation();
+        updatePageCounter();
+      }
+
+      function selectTemplate(templateId) {
+        document.querySelectorAll('.template-item').forEach(item => {
+          item.classList.remove('selected');
+        });
+        
+        document.querySelector(`[data-template="${templateId}"]`).classList.add('selected');
+        
+        selectedTemplate = templateId;
+        document.getElementById('selectTemplateBtn').disabled = false;
+        
+        updatePreview();
+      }
+
+      // FUNGSI UNIFIED UNTUK MEMPROSES TEXT - DIGUNAKAN OLEH PREVIEW DAN CANVAS
+      function processText(nama, maxWidth, ctx = null) {
+        // Konfigurasi universal untuk semua template
+        const config = {
+          fontSize: 34,
+          maxWidth: maxWidth || 480,
+          lineHeight: 42,
+          textColor: "#FFD700",
+          shadowColor: "rgba(0, 0, 0, 0.3)",
+          outlineColor: "#8B0000",
+          outlineWidth: 2
+        };
+
+        // Adjust font size berdasarkan panjang nama
+        let fontSize = config.fontSize;
+        let adjustedMaxWidth = config.maxWidth;
+
+        if (nama.length > 25) {
+          fontSize = Math.max(24, fontSize - 10);
+          adjustedMaxWidth = adjustedMaxWidth * 0.85;
+        } else if (nama.length > 20) {
+          fontSize = Math.max(28, fontSize - 6);
+          adjustedMaxWidth = adjustedMaxWidth * 0.9;
+        } else if (nama.length > 15) {
+          fontSize = Math.max(30, fontSize - 4);
+          adjustedMaxWidth = adjustedMaxWidth * 0.95;
+        }
+
+        // Set font untuk measureText (jika ctx tersedia)
+        if (ctx) {
+          ctx.font = `bold ${fontSize}px CustomFont, Arial`;
+        }
+
+        // Text wrapping dengan measureText atau estimasi
+        let words = nama.split(" ");
+        let lines = [];
+        let currentLine = words[0] || '';
+
+        for (let i = 1; i < words.length; i++) {
+          let testLine = currentLine + " " + words[i];
+          
+          let lineWidth;
+          if (ctx) {
+            lineWidth = ctx.measureText(testLine).width;
+          } else {
+            // Estimasi untuk preview (rata-rata 12px per karakter)
+            lineWidth = testLine.length * (fontSize * 0.35);
+          }
+
+          if (lineWidth > adjustedMaxWidth && currentLine.length > 0) {
+            lines.push(currentLine);
+            currentLine = words[i];
+          } else {
+            currentLine = testLine;
+          }
+        }
+        lines.push(currentLine);
+
+        // Handle baris yang masih terlalu panjang
+        let finalLines = [];
+        for (let line of lines) {
+          let lineWidth;
+          if (ctx) {
+            lineWidth = ctx.measureText(line).width;
+          } else {
+            lineWidth = line.length * (fontSize * 0.35);
+          }
+
+          if (lineWidth > adjustedMaxWidth) {
+            // Split per karakter jika masih terlalu panjang
+            let chars = line.split('');
+            let currentCharLine = '';
+            
+            for (let char of chars) {
+              let testCharLine = currentCharLine + char;
+              let charWidth;
+              
+              if (ctx) {
+                charWidth = ctx.measureText(testCharLine).width;
+              } else {
+                charWidth = testCharLine.length * (fontSize * 0.35);
+              }
+              
+              if (charWidth > adjustedMaxWidth && currentCharLine.length > 0) {
+                finalLines.push(currentCharLine);
+                currentCharLine = char;
+              } else {
+                currentCharLine = testCharLine;
+              }
+            }
+            if (currentCharLine) finalLines.push(currentCharLine);
+          } else {
+            finalLines.push(line);
+          }
+        }
+
+        return {
+          lines: finalLines,
+          fontSize: fontSize,
+          lineHeight: config.lineHeight,
+          textColor: config.textColor,
+          shadowColor: config.shadowColor,
+          outlineColor: config.outlineColor,
+          outlineWidth: config.outlineWidth,
+          maxWidth: adjustedMaxWidth
+        };
+      }
+
+      function updatePreview() {
+        if (!selectedTemplate) return;
+        
+        const template = templates.find(t => t.id === selectedTemplate);
+        if (!template) return;
+        
+        const preview = document.getElementById('livePreview');
+        const previewName = document.getElementById('previewName');
+        const nama = document.getElementById('nama').value.trim() || 'Nama Antum';
+        
+        preview.style.backgroundImage = `url('${template.path}')`;
+        
+        // Dapatkan konfigurasi template yang spesifik
+        const templateConfig = getTemplateConfig(template.filename);
+        
+        // Proses text menggunakan fungsi unified
+        const textResult = processText(nama, 240); // 240px untuk preview (setengah dari canvas)
+        
+        // Simpan hasil untuk digunakan di canvas
+        processedTextLines = textResult.lines;
+        finalTextConfig = textResult;
+        
+        // Set styling preview berdasarkan hasil processing
+        previewName.style.fontSize = (textResult.fontSize / 2.4) + 'px'; // Scale down untuk preview
+        previewName.style.lineHeight = '1.3';
+        
+        // TERAPKAN WARNA DARI TEMPLATE CONFIG
+        previewName.style.color = templateConfig.textColor;
+        previewName.style.textShadow = '1px 1px 2px rgba(0,0,0,0.3)';
+        
+        // Set posisi yang sama dengan canvas (15% dari bawah = 85% dari atas)
+        previewName.style.bottom = '15%';
+        
+        // Display text dengan line breaks yang sama
+        previewName.innerHTML = textResult.lines.join('<br>');
+      }
+
+      function getTemplateConfig(filename) {
+        // Konfigurasi universal untuk semua template
+        return {
+          positionY: 0.85, // 85% dari atas untuk semua template
+          fontSize: 34,
+          maxWidth: 480,
+          lineHeight: 42,
+          textColor: "#FFD700",
+          shadowColor: "rgba(0, 0, 0, 0.3)",
+          outlineColor: "#8B0000",
+          outlineWidth: 2
+        };
+      }
+
+      function previousSlide() {
+        if (currentSlide > 0) {
+          goToSlide(currentSlide - 1);
+        }
+      }
+
+      function nextSlide() {
+        if (currentSlide < totalSlides - 1) {
+          goToSlide(currentSlide + 1);
+        }
+      }
+
+      function goToSlide(slideIndex) {
+        currentSlide = slideIndex;
+        const wrapper = document.getElementById('carouselWrapper');
+        const translateX = -slideIndex * 100;
+        wrapper.style.transform = `translateX(${translateX}%)`;
+        
+        document.querySelectorAll('.indicator').forEach((indicator, index) => {
+          indicator.classList.toggle('active', index === slideIndex);
+        });
+        
+        updateCarouselNavigation();
+        updatePageCounter();
+      }
+
+      function updateCarouselNavigation() {
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        prevBtn.disabled = currentSlide === 0;
+        nextBtn.disabled = currentSlide === totalSlides - 1;
+      }
+
+      function updatePageCounter() {
+        document.getElementById('currentPage').textContent = currentSlide + 1;
+        document.getElementById('totalPages').textContent = totalSlides;
+      }
+
+      function showStep(stepNumber) {
+        document.querySelectorAll('.step').forEach(step => {
+          step.classList.remove('active');
+        });
+        
+        document.getElementById(`step${stepNumber}`).classList.add('active');
+        currentStep = stepNumber;
+      }
+
+      function nextStep() {
+        if (currentStep === 1 && !selectedTemplate) {
+          alert('Silakan pilih template terlebih dahulu!');
+          return;
+        }
+        
+        if (currentStep < 3) {
+          showStep(currentStep + 1);
+        }
+      }
+
+      function prevStep() {
+        if (currentStep > 1) {
+          showStep(currentStep - 1);
+        }
+      }
+
+      function startOver() {
+        selectedTemplate = null;
+        document.getElementById('nama').value = '';
+        document.querySelectorAll('.template-item').forEach(item => {
+          item.classList.remove('selected');
+        });
+        document.getElementById('selectTemplateBtn').disabled = true;
+        
+        document.getElementById('flyerCanvas').style.display = 'none';
+        document.getElementById('downloadSection').style.display = 'none';
+        
+        goToSlide(0);
+        showStep(1);
+      }
+
+      function generateFinalCard() {
+        showStep(3);
+        
+        const template = templates.find(t => t.id === selectedTemplate);
+        if (!template) {
+          alert('Template tidak ditemukan!');
+          return;
+        }
+        
         let canvas = document.getElementById("flyerCanvas");
         let ctx = canvas.getContext("2d");
         let nama = document.getElementById("nama").value.trim() || "Nama Antum";
@@ -167,72 +822,100 @@
 
         let img = new Image();
         img.crossOrigin = "anonymous";
-        img.src = "twibbon.png?t=" + new Date().getTime();
+        img.src = template.path + "?t=" + new Date().getTime();
 
         img.onload = function () {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          try {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-          // Set font and style for name text
-          ctx.font = "40px CustomFont";
-          ctx.fillStyle = "#FFD700"; // Gold color matching the Idul Fitri text
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-
-          let posX = canvas.width / 2;
-          let posY = 1100;
-
-          // Handle text wrapping for long names
-          let maxWidth = 650; // Maximum width for text
-          let words = nama.split(" ");
-          let lines = [];
-          let currentLine = words[0];
-
-          for (let i = 1; i < words.length; i++) {
-            let testLine = currentLine + " " + words[i];
-            let metrics = ctx.measureText(testLine);
-
-            if (metrics.width > maxWidth) {
-              lines.push(currentLine);
-              currentLine = words[i];
+            // AMBIL DATA DARI PREVIEW YANG SUDAH SEMPURNA
+            const previewElement = document.getElementById('previewName');
+            
+            // Dapatkan konfigurasi template yang spesifik
+            const templateConfig = getTemplateConfig(template.filename);
+            
+            // Ambil text content dan line breaks dari preview
+            const previewHTML = previewElement.innerHTML;
+            let textLines = [];
+            
+            if (previewHTML.includes('<br>')) {
+              textLines = previewHTML.split('<br>').map(line => line.trim()).filter(line => line);
             } else {
-              currentLine = testLine;
+              textLines = [previewElement.textContent.trim()];
             }
+
+            // Posisi yang sama dengan preview tapi sedikit lebih ke atas
+            const posX = canvas.width / 2;
+            const posY = canvas.height * 0.82; // Lebih ke atas dari 0.85 ke 0.82
+
+            // Font size yang lebih besar dan proporsional
+            let canvasFontSize = 48; // Base font size diperbesar dari 40 ke 48
+            
+            // Adjust berdasarkan panjang nama
+            if (nama.length > 25) {
+              canvasFontSize = 34; // Dari 28 ke 34
+            } else if (nama.length > 20) {
+              canvasFontSize = 38; // Dari 32 ke 38
+            } else if (nama.length > 15) {
+              canvasFontSize = 42; // Dari 36 ke 42
+            }
+
+            const lineHeight = canvasFontSize * 1.2; // Line height sedikit dikurangi untuk lebih rapat
+
+            // Set font
+            ctx.font = `bold ${canvasFontSize}px CustomFont, Arial`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            // Hitung posisi untuk multiple lines
+            const totalTextHeight = textLines.length * lineHeight;
+            let startY = posY - (totalTextHeight / 2) + (lineHeight / 2);
+
+            // Gambar setiap line
+            textLines.forEach((line, index) => {
+              if (!line || line.trim() === '') return;
+              
+              const lineY = startY + (index * lineHeight);
+              
+              // Shadow halus seperti preview
+              ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+              ctx.fillText(line, posX + 1, lineY + 1);
+              
+              // GUNAKAN WARNA DARI TEMPLATE CONFIG
+              ctx.fillStyle = templateConfig.textColor;
+              ctx.fillText(line, posX, lineY);
+            });
+
+            // Tampilkan hasil
+            loadingText.style.display = "none";
+            canvas.style.display = "block";
+            downloadSection.style.display = "block";
+
+            canvas.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+            // Generate download link
+            let imageData = canvas.toDataURL("image/png", 1.0);
+            downloadLink.href = imageData;
+            
+          } catch (error) {
+            console.error('Error generating card:', error);
+            loadingText.style.display = "none";
+            alert('Terjadi error saat membuat kartu. Silakan coba lagi.');
           }
-          lines.push(currentLine);
-
-          // Adjust position for multiple lines
-          let lineHeight = 50;
-          let startY = posY - ((lines.length - 1) * lineHeight) / 2;
-
-          // Draw each line
-          for (let i = 0; i < lines.length; i++) {
-            ctx.fillText(lines[i], posX, startY + i * lineHeight);
-          }
-
-          loadingText.style.display = "none";
-          canvas.style.display = "block";
-          downloadSection.style.display = "block";
-
-          // Scroll to the image
-          canvas.scrollIntoView({ behavior: "smooth", block: "nearest" });
-
-          let imageData = canvas.toDataURL("image/png");
-          downloadLink.href = imageData;
         };
 
         img.onerror = function () {
-          alert(
-            "Gambar tidak dapat dimuat. Periksa URL atau koneksi internet."
-          );
           loadingText.style.display = "none";
+          alert("Template tidak dapat dimuat. Periksa file template.");
         };
       }
 
       function shareImage() {
         let canvas = document.getElementById("flyerCanvas");
         canvas.toBlob((blob) => {
-          let file = new File([blob], "ucapan-idulfitri.png", {
+          let file = new File([blob], "kartu-ucapan.png", {
             type: "image/png",
           });
           let data = { files: [file] };

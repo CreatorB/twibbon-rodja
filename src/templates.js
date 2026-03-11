@@ -72,6 +72,11 @@ export const OUTPUT_SIZES = [
 export const FONT_OPTIONS = [
   { id: "sora", label: "Sora", family: '"Sora", sans-serif' },
   { id: "outfit", label: "Outfit", family: '"Outfit", sans-serif' },
+  { id: "plus-jakarta", label: "Plus Jakarta Sans", family: '"Plus Jakarta Sans", sans-serif' },
+  { id: "instrument-serif", label: "Instrument Serif", family: '"Instrument Serif", serif' },
+  { id: "playfair", label: "Playfair Display", family: '"Playfair Display", serif' },
+  { id: "cormorant", label: "Cormorant Garamond", family: '"Cormorant Garamond", serif' },
+  { id: "marcellus", label: "Marcellus", family: '"Marcellus", serif' },
   { id: "trebuc", label: "Trebuchet", family: '"Trebuchet MS", sans-serif' },
   { id: "segoe", label: "Segoe UI", family: '"Segoe UI", sans-serif' },
 ];

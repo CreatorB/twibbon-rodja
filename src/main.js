@@ -15,6 +15,7 @@ const elements = {
   studioNameInput: document.getElementById("studioNameInput"),
   studioSizeSelect: document.getElementById("studioSizeSelect"),
   studioFontSelect: document.getElementById("studioFontSelect"),
+  studioAutoFontToggle: document.getElementById("studioAutoFontToggle"),
   studioColorInput: document.getElementById("studioColorInput"),
   studioFontSizeRange: document.getElementById("studioFontSizeRange"),
   studioOffsetXRange: document.getElementById("studioOffsetXRange"),
@@ -92,6 +93,21 @@ function getTemplateById(templateId) {
 
 function getFontById(fontId) {
   return FONT_OPTIONS.find((font) => font.id === fontId) ?? FONT_OPTIONS[0];
+}
+
+function getSuggestedFontId(templateId) {
+  const suggested = {
+    "rodja-frame": "playfair",
+    "syathiby-frame": "instrument-serif",
+    "kias-frame": "plus-jakarta",
+    "albarkah-frame": "cormorant",
+  };
+
+  return suggested[templateId] ?? FONT_OPTIONS[0].id;
+}
+
+function isAutoFontEnabled() {
+  return elements.studioAutoFontToggle?.checked ?? true;
 }
 
 function parsePercentRange(element) {
@@ -870,8 +886,9 @@ function populateControls() {
 
   elements.simpleSizeSelect.value = OUTPUT_SIZES[0].id;
   elements.studioSizeSelect.value = OUTPUT_SIZES[0].id;
-  elements.studioFontSelect.value = FONT_OPTIONS[0].id;
   elements.studioTemplateSelect.value = templates[0]?.id ?? "";
+  elements.studioAutoFontToggle.checked = true;
+  elements.studioFontSelect.value = getSuggestedFontId(elements.studioTemplateSelect.value);
   elements.simpleNameInput.value = "Nama Antum";
   elements.studioNameInput.value = "Nama Antum";
 
@@ -909,6 +926,15 @@ async function bootstrap() {
 
   elements.studioTemplateSelect.addEventListener("change", () => {
     setPresetControlsFromTemplate(getTemplateById(elements.studioTemplateSelect.value));
+    if (isAutoFontEnabled()) {
+      elements.studioFontSelect.value = getSuggestedFontId(elements.studioTemplateSelect.value);
+    }
+    scheduleStudioRender();
+  });
+  elements.studioAutoFontToggle.addEventListener("change", () => {
+    if (isAutoFontEnabled()) {
+      elements.studioFontSelect.value = getSuggestedFontId(elements.studioTemplateSelect.value);
+    }
     scheduleStudioRender();
   });
   elements.studioNameInput.addEventListener("input", scheduleStudioRender);
@@ -1013,6 +1039,9 @@ async function bootstrap() {
       templates.map((item) => ({ value: item.id, label: item.title })),
     );
     elements.studioTemplateSelect.value = template.id;
+    if (isAutoFontEnabled()) {
+      elements.studioFontSelect.value = FONT_OPTIONS[0].id;
+    }
     setPresetControlsFromTemplate(template);
     scheduleStudioRender();
   });

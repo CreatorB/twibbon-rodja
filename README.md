@@ -24,8 +24,9 @@ Twibbon Rodja is a simple web-based application that allows users to generate pe
 - **Beautiful UI:** A simple and elegant design inspired by traditional Islamic themes.
 
 ## Technologies Used
+- Vite (Build Tool)
 - HTML5
-- CSS3 (Custom Fonts & Gradient Styling)
+- CSS3
 - JavaScript (Canvas for dynamic image generation)
 
 ## Installation & Usage
@@ -35,14 +36,44 @@ Twibbon Rodja is a simple web-based application that allows users to generate pe
  cd twibbon-rodja
 ```
 
-### 2. Open the Application
-Simply open the `index.html` file in any modern web browser.
+### 2. Install Dependencies
+```sh
+npm install
+```
 
-### 3. Personalize Your Flyer
+### 3. Run Development Mode
+```sh
+npm run dev
+```
+Open `http://localhost:5173` in your browser.
+
+### 4. Build for Production
+```sh
+npm run build
+```
+Build result will be available in the `dist` folder.
+
+### 5. Personalize Your Flyer
 - Enter your name in the input field.
 - Click the **"Buat Flyer"** button.
 - Wait for the image to generate.
 - Download or share the image.
+
+## Deployment Flow (SSH + Git)
+
+Recommended workflow:
+
+1. Develop and test locally using Vite.
+2. Commit and push to GitHub.
+3. Login to server via SSH and pull latest changes.
+
+```sh
+ssh u44-ymt6jwdhjg4c@ssh.rodja.co.id -p 18765
+cd ~/www/ucapan.rodja.co.id
+git pull origin dev
+```
+
+If your hosting does not run Node apps directly, deploy static output from `dist` into document root.
 
 ## File Structure
 
@@ -51,10 +82,13 @@ I've provide the inline code, but for standart structure you can following below
 ```
 / twibbon-rodja
  ├── index.html        # Main HTML file
- ├── style.css         # CSS styles
- ├── script.js         # JavaScript logic
- ├── twibbon.png       # Background image
- ├── ClashDisplay-sb.ttf # Custom font
+ ├── package.json      # NPM scripts and dependencies
+ ├── public/
+ │   └── twibbon.png   # Background image template
+ ├── src/
+ │   ├── main.js       # JavaScript logic
+ │   └── style.css     # CSS styles
+ └── dist/             # Production build output
 ```
 
 ## Contributing
@@ -68,4 +102,4 @@ This project is licensed under the MIT License. Feel free to modify and distribu
 
 If you need further customization, let me know! 🚀
 
-Hasan IT Support / Syathiby 2024 | [CreatorB](https://github.com/CreatorB)
+Hasan Syathiby / IT Syathiby 2024 | [CreatorB](https://github.com/CreatorB)

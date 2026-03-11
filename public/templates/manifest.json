@@ -1,0 +1,98 @@
+{
+  "ycsTemplates": [
+    {
+      "id": "rodja-frame",
+      "title": "Rodja Frame",
+      "description": "Template unit Rodja",
+      "image": "twibbon-rodja.jpg",
+      "textBox": {
+        "x": 0.5,
+        "y": 0.735,
+        "maxWidth": 0.5,
+        "maxLines": 2,
+        "minFont": 22,
+        "maxFont": 42,
+        "lineHeight": 1.04,
+        "align": "center"
+      },
+      "textStyle": {
+        "mainColor": "#fff6d6",
+        "shadowColor": "rgba(48, 12, 4, 0.45)"
+      }
+    },
+    {
+      "id": "syathiby-frame",
+      "title": "Syathiby Frame",
+      "description": "Template unit Syathiby",
+      "image": "twibbon-syathiby.png",
+      "textBox": {
+        "x": 0.5,
+        "y": 0.692,
+        "maxWidth": 0.52,
+        "maxLines": 2,
+        "minFont": 21,
+        "maxFont": 38,
+        "lineHeight": 1.03,
+        "align": "center"
+      },
+      "textStyle": {
+        "mainColor": "#f0e3b0",
+        "shadowColor": "rgba(9, 52, 35, 0.24)"
+      }
+    },
+    {
+      "id": "kias-frame",
+      "title": "KIAS Frame",
+      "description": "Template unit KIAS",
+      "image": "twibbon-kias.png",
+      "textBox": {
+        "x": 0.5,
+        "y": 0.355,
+        "maxWidth": 0.52,
+        "maxLines": 2,
+        "minFont": 22,
+        "maxFont": 42,
+        "lineHeight": 1.06,
+        "align": "center"
+      },
+      "textStyle": {
+        "mainColor": "#ffffff",
+        "shadowColor": "rgba(7, 70, 98, 0.22)"
+      }
+    },
+    {
+      "id": "albarkah-frame",
+      "title": "Al-Barkah Frame",
+      "description": "Template unit Albarkah",
+      "image": "twibbon-albarkah.jpeg",
+      "textBox": {
+        "x": 0.25,
+        "y": 0.552,
+        "maxWidth": 0.46,
+        "maxLines": 2,
+        "minFont": 17,
+        "maxFont": 32,
+        "lineHeight": 1,
+        "align": "center"
+      },
+      "textStyle": {
+        "mainColor": "#f5f1cf",
+        "shadowColor": "rgba(28, 80, 57, 0.22)"
+      }
+    }
+  ],
+  "freeFrames": [
+    {
+      "id": "gallery-kias",
+      "title": "KIAS Greeting",
+      "description": "Kartu ucapan siap pakai",
+      "image": "/templates/galleries/kias.jpeg"
+    },
+    {
+      "id": "gallery-syathiby",
+      "title": "Syathiby Greeting",
+      "description": "Kartu ucapan siap pakai",
+      "image": "/templates/galleries/syathiby.jpeg"
+    }
+  ]
+}

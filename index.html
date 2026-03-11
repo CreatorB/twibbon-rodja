@@ -3,26 +3,168 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ucapan Idul Fitri</title>
+    <title>Yayasan Cahaya Sunnah Twibbon</title>
   </head>
   <body>
-    <main class="container">
-      <h3>Ahlan, silakan buat kartu ucapan Idulfitri gratis:</h3>
-      <input type="text" id="nama" placeholder="Ketik nama antum di sini" />
-      <button id="generateButton" type="button">Buat Flyer</button>
+    <div class="bg-glow bg-a"></div>
+    <div class="bg-glow bg-b"></div>
 
-      <p class="loading" id="loadingText">Sedang merender gambar...</p>
-      <canvas id="flyerCanvas" width="1080" height="1350"></canvas>
+    <main class="app-shell">
+      <header class="hero">
+        <p class="eyebrow">YCS Twibbon</p>
+        <h1>Yayasan Cahaya Sunnah Twibbon</h1>
+        <p>
+          Platform twibbon resmi di bawah naungan Yayasan Cahaya Sunnah untuk Rodja, Syathiby, KIAS, dan unit dakwah lainnya.
+        </p>
+        <p class="manifest-status" id="manifestStatus">Manifest template aktif.</p>
+      </header>
 
-      <div id="downloadSection">
-        <button id="shareButton" type="button">Bagikan Gambar</button>
-        <a id="downloadLink" download="ucapan-idulfitri.png">Download Gambar</a>
-      </div>
+      <nav class="tabs" aria-label="Mode editor">
+        <button class="tab-button active" id="tabSimple" type="button" data-target="simplePanel" aria-selected="true">Simple</button>
+        <button class="tab-button" id="tabStudio" type="button" data-target="studioPanel" aria-selected="false">Studio</button>
+        <button class="tab-button" id="tabGallery" type="button" data-target="galleryPanel" aria-selected="false">Gallery</button>
+      </nav>
+
+      <section class="tab-panel active" id="simplePanel">
+        <div class="card">
+          <h2>Simple</h2>
+          <p>Isi nama sekali, lalu seluruh template YCS langsung muncul dan siap dibagikan.</p>
+          <label for="simpleNameInput">Nama</label>
+          <input id="simpleNameInput" type="text" maxlength="80" placeholder="Ketik nama antum" />
+          <label for="simpleSizeSelect">Ukuran Output</label>
+          <select id="simpleSizeSelect"></select>
+          <p class="helper">Preview otomatis menyesuaikan setting placeholder tiap template.</p>
+        </div>
+
+        <div class="template-preview-list" id="simplePreviewList"></div>
+      </section>
+
+      <section class="tab-panel" id="studioPanel">
+        <div class="card studio-grid">
+          <div class="studio-controls">
+            <h2>Studio</h2>
+            <p>Atur detail teks, geser posisi, dan upload template pribadi untuk kebutuhan personal.</p>
+
+            <label for="studioTemplateSelect">Template</label>
+            <select id="studioTemplateSelect"></select>
+
+            <label for="studioUploadInput">Upload Template Pribadi</label>
+            <input id="studioUploadInput" type="file" accept="image/*" />
+
+            <label for="studioNameInput">Nama</label>
+            <input id="studioNameInput" type="text" maxlength="80" placeholder="Nama utama" />
+
+            <div class="control-row">
+              <div>
+                <label for="studioSizeSelect">Ukuran</label>
+                <select id="studioSizeSelect"></select>
+              </div>
+              <div>
+                <label for="studioFontSelect">Font</label>
+                <select id="studioFontSelect"></select>
+              </div>
+            </div>
+
+            <div class="control-row">
+              <div>
+                <label for="studioColorInput">Warna Teks</label>
+                <input id="studioColorInput" type="color" value="#f8e08b" />
+              </div>
+              <div>
+                <label for="studioFontSizeRange">Ukuran Teks</label>
+                <input id="studioFontSizeRange" type="range" min="30" max="96" value="68" />
+              </div>
+            </div>
+
+            <div class="control-row">
+              <div>
+                <label for="studioOffsetXRange">Geser X</label>
+                <input id="studioOffsetXRange" type="range" min="-30" max="30" value="0" />
+              </div>
+              <div>
+                <label for="studioOffsetYRange">Geser Y</label>
+                <input id="studioOffsetYRange" type="range" min="-30" max="30" value="0" />
+              </div>
+            </div>
+
+            <div class="actions">
+              <button id="studioResetButton" type="button" class="ghost">Reset Posisi</button>
+              <button id="studioDownloadButton" type="button">Download</button>
+              <button id="studioShareButton" type="button">Share</button>
+            </div>
+
+            <div class="preset-tools">
+              <h3>Preset Helper</h3>
+              <p>Atur placeholder lalu salin JSON untuk dimasukkan ke manifest.</p>
+
+              <div class="control-row">
+                <div>
+                  <label for="presetXRange">Anchor X (%)</label>
+                  <input id="presetXRange" type="range" min="10" max="90" value="50" />
+                </div>
+                <div>
+                  <label for="presetYRange">Anchor Y (%)</label>
+                  <input id="presetYRange" type="range" min="10" max="95" value="78" />
+                </div>
+              </div>
+
+              <div class="control-row">
+                <div>
+                  <label for="presetWidthRange">Max Width (%)</label>
+                  <input id="presetWidthRange" type="range" min="20" max="95" value="72" />
+                </div>
+                <div>
+                  <label for="presetLinesRange">Max Lines</label>
+                  <input id="presetLinesRange" type="range" min="1" max="8" value="4" />
+                </div>
+              </div>
+
+              <div class="control-row">
+                <div>
+                  <label for="presetMinFontRange">Min Font</label>
+                  <input id="presetMinFontRange" type="range" min="12" max="80" value="26" />
+                </div>
+                <div>
+                  <label for="presetMaxFontRange">Max Font</label>
+                  <input id="presetMaxFontRange" type="range" min="24" max="120" value="78" />
+                </div>
+              </div>
+
+              <div class="control-row">
+                <div>
+                  <label for="presetLineHeightRange">Line Height</label>
+                  <input id="presetLineHeightRange" type="range" min="100" max="220" value="114" />
+                </div>
+              </div>
+
+              <label for="presetOutput">JSON Preset</label>
+              <textarea id="presetOutput" rows="8" readonly></textarea>
+              <button id="copyPresetButton" class="ghost" type="button">Copy JSON</button>
+            </div>
+          </div>
+
+          <div class="studio-preview-wrap">
+            <p id="studioMeta">1080 x 1350</p>
+            <canvas id="studioCanvas" width="1080" height="1350"></canvas>
+            <p class="helper">Tip: tekan dan geser teks langsung pada preview untuk memindahkan posisi.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="galleryPanel">
+        <div class="card">
+          <h2>Gallery</h2>
+          <p>Kumpulan kartu ucapan siap pakai. Tidak perlu edit teks, langsung download atau share.</p>
+        </div>
+
+        <div class="template-preview-list" id="galleryPreviewList"></div>
+      </section>
     </main>
 
     <footer class="footer">
-      Made with <span class="heart">&#10084;</span> bi'idznillah - Powered by
-      <a href="https://syathiby.github.io/" target="_blank" rel="noreferrer"><b>ITS 2024</b></a>
+      <span>Made with <span class="heart-green">&#9829;</span> by <a href="https://syathiby.github.io/" target="_blank" rel="noreferrer">IT Syathiby 2024</a></span>
+      <span>|</span>
+      <a href="https://github.com/CreatorB/twibbon-rodja" target="_blank" rel="noreferrer">Open Source</a>
     </footer>
 
     <script type="module" src="/src/main.js"></script>

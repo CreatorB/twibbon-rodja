@@ -1,105 +1,175 @@
-# Twibbon Rodja - Idul Fitri Greeting Card Generator
+# YCS Twibbon
 
-[Ucapan Ied Rodja TV - https://ucapan.rodja.co.id](https://ucapan.rodja.co.id)
+YCS adalah singkatan dari Yayasan Cahaya Sunnah.
 
-<div align="center">
-  <br>
-  <picture>
-    <source media="(max-width: 768px)" srcset="https://raw.githubusercontent.com/CreatorB/twibbon-rodja/refs/heads/main/ss-twibbon-rodja.png" width="100%">
-    <source media="(min-width: 769px)" srcset="https://raw.githubusercontent.com/CreatorB/twibbon-rodja/refs/heads/main/ss-twibbon-rodja.png" width="50%">
-    <img src="https://raw.githubusercontent.com/CreatorB/twibbon-rodja/refs/heads/main/ss-twibbon-rodja.png" alt="Web Preview" width="50%">
-  </picture>
-  <br>
-</div>
+Web app generator twibbon berbasis Vite dengan 3 tab:
 
-## Overview
-Twibbon Rodja is a simple web-based application that allows users to generate personalized Idul Fitri greeting cards. Users can input their name, and the application will render a custom flyer with their name centered on a festive Idul Fitri background. The generated image can be downloaded or shared directly.
+1. Simple
+- User cukup isi nama.
+- Semua template YCS langsung muncul sebagai preview.
+- Setiap card bisa langsung Download atau Share.
 
-## Features
-- **Custom Name Input:** Users can personalize the card with their name.
-- **Auto-Centering Text:** Ensures that the text is properly aligned within the design.
-- **Text Wrapping Support:** Handles long names gracefully by breaking them into multiple lines.
-- **Live Preview:** The flyer is generated dynamically on a canvas element.
-- **Download & Share:** Users can download the final image or share it directly using the Web Share.
-- **Beautiful UI:** A simple and elegant design inspired by traditional Islamic themes.
+2. Studio
+- User bisa pilih template, ubah font, warna, ukuran, dan offset teks.
+- Teks dapat digeser langsung di canvas (drag).
+- User bisa upload template pribadi (hanya lokal browser, tidak tersimpan ke sistem).
+- Tersedia Preset Helper untuk menghasilkan JSON placeholder siap copy ke manifest.
 
-## Technologies Used
-- Vite (Build Tool)
-- HTML5
-- CSS3
-- JavaScript (Canvas for dynamic image generation)
+3. Gallery
+- Tidak ada edit teks atau watermark.
+- Card siap pakai untuk Download atau Share langsung.
 
-## Installation & Usage
-### 1. Clone the Repository
-```sh
- git clone https://github.com/CreatorB/twibbon-rodja.git
- cd twibbon-rodja
-```
+## Stack
+- Vite
+- HTML
+- CSS
+- JavaScript Canvas API
 
-### 2. Install Dependencies
+## Jalankan Lokal
 ```sh
 npm install
-```
-
-### 3. Run Development Mode
-```sh
 npm run dev
 ```
-Open `http://localhost:5173` in your browser.
 
-### 4. Build for Production
+Build production:
 ```sh
 npm run build
 ```
-Build result will be available in the `dist` folder.
 
-### 5. Personalize Your Flyer
-- Enter your name in the input field.
-- Click the **"Buat Flyer"** button.
-- Wait for the image to generate.
-- Download or share the image.
+## Struktur Utama
+```txt
+twibbon-rodja/
+  index.html
+  public/
+    templates/
+      manifest.json
+      ycs-frame/
+      free-frame/
+  src/
+    main.js
+    style.css
+    templates.js
+```
 
-## Deployment Flow (SSH + Git)
+## Workflow Template Untuk Tim Designer
+1. Simpan twibbon resmi di folder public/templates/ycs-frame.
+2. Simpan kartu ucapan siap pakai di folder public/templates/free-frame.
+3. Edit daftar template di public/templates/manifest.json.
+4. Tidak perlu edit logic rendering di src/main.js.
 
-Recommended workflow:
+Struktur manifest yang dipakai:
+```json
+{
+  "ycsTemplates": [],
+  "freeFrames": []
+}
+```
 
-1. Develop and test locally using Vite.
-2. Commit and push to GitHub.
-3. Login to server via SSH and pull latest changes.
+Contoh entri twibbon pada ycsTemplates:
+```json
+{
+  "id": "kajian-ramadhan-1",
+  "title": "Kajian Ramadhan 1",
+  "description": "Tema hijau emas",
+  "image": "kajian-ramadhan-1.png",
+  "textBox": {
+    "x": 0.5,
+    "y": 0.78,
+    "maxWidth": 0.7,
+    "maxLines": 3,
+    "minFont": 28,
+    "maxFont": 72,
+    "lineHeight": 1.16,
+    "align": "center"
+  },
+  "textStyle": {
+    "mainColor": "#ffffff",
+    "shadowColor": "rgba(0, 0, 0, 0.25)"
+  }
+}
+```
 
+Contoh entri kartu ucapan pada freeFrames:
+```json
+{
+  "id": "idulfitri-ucapan-1",
+  "title": "Ucapan Idulfitri 1",
+  "description": "Kartu siap pakai",
+  "image": "idulfitri-ucapan-1.png"
+}
+```
+## Menambah Template Baru (Ringkas)
+1. Tambahkan file gambar ke public/templates/ycs-frame.
+2. Tambahkan objek template ke array ycsTemplates di public/templates/manifest.json.
+3. Jalankan aplikasi dan cek di tab Simple serta Studio.
+
+## Kalibrasi Preset Dengan Preset Helper
+1. Buka tab Studio.
+2. Pilih template yang ingin dikalibrasi.
+3. Atur slider Preset Helper: Anchor X/Y, Max Width, Max Lines, Min/Max Font, Line Height, Caption Offset.
+4. Klik Copy JSON lalu paste ke public/templates/manifest.json pada entri template terkait.
+
+## Menambah Kartu Ucapan (Tab Galeri)
+1. Tambahkan file gambar ke public/templates/free-frame.
+2. Tambahkan objek kartu ke array freeFrames di public/templates/manifest.json.
+3. Cek hasilnya di tab Gallery.
+
+Contoh minimal preset (fallback di src/templates.js):
+```js
+{
+  id: "template-baru",
+  title: "Template Baru",
+  description: "Deskripsi singkat",
+  imagePath: "/templates/template-baru.png",
+  textBox: {
+    x: 0.5,
+    y: 0.8,
+    maxWidth: 0.72,
+    maxLines: 3,
+    minFont: 30,
+    maxFont: 72,
+    lineHeight: 1.16,
+    align: "center"
+  },
+  captionBox: {
+    enabled: true,
+    offsetY: 0.08,
+    minFont: 16,
+    maxFont: 30
+  }
+}
+```
+
+## Best Practice Placeholder Teks
+- Gunakan nilai relatif 0 sampai 1 untuk x, y, maxWidth agar konsisten di semua ukuran output.
+- Fokuskan textBox untuk area aman yang tidak menabrak ornamen template.
+- Uji minimal 3 skenario:
+  - Nama pendek (1-2 kata)
+  - Nama sedang (3-4 kata)
+  - Nama panjang (5+ kata)
+- Jika template punya area sempit, turunkan maxFont dan naikkan maxLines.
+
+## Checklist QA Sebelum Publish Template
+1. Cek template di ukuran 1080x1350, 1080x1080, dan 1080x1920.
+2. Uji nama pendek, sedang, panjang, dan nama dengan 2 baris.
+3. Cek kontras teks terhadap background pada tab Simple dan Studio.
+4. Cek hasil download PNG dan pastikan resolusi sesuai pilihan ukuran.
+5. Cek fitur share di minimal 1 Android dan 1 iOS (jika tersedia).
+6. Pastikan tidak ada elemen teks menabrak logo, ornament, atau area wajah pada desain.
+7. Pastikan banner status manifest di header tidak menunjukkan warning untuk data production.
+
+## Langkah Berikutnya Yang Perlu Anda Cek
+1. Siapkan template twibbon production ke public/templates/ycs-frame.
+2. Siapkan kartu ucapan siap pakai ke public/templates/free-frame.
+3. Isi metadata placeholder di public/templates/manifest.json.
+4. Jalankan QA checklist di atas, lalu catat template yang perlu penyesuaian textBox.
+5. Finalisasi branch setelah semua template lolos di semua tab.
+
+## Deploy via SSH + Git
 ```sh
 ssh u44-ymt6jwdhjg4c@ssh.rodja.co.id -p 18765
 cd ~/www/ucapan.rodja.co.id
-git pull origin dev
+git pull origin main
 ```
 
-If your hosting does not run Node apps directly, deploy static output from `dist` into document root.
-
-## File Structure
-
-I've provide the inline code, but for standart structure you can following below :
-
-```
-/ twibbon-rodja
- ├── index.html        # Main HTML file
- ├── package.json      # NPM scripts and dependencies
- ├── public/
- │   └── twibbon.png   # Background image template
- ├── src/
- │   ├── main.js       # JavaScript logic
- │   └── style.css     # CSS styles
- └── dist/             # Production build output
-```
-
-## Contributing
-Contributions are welcome! Please submit a pull request if you want to enhance the project.
-
-## License
-This project is licensed under the MIT License. Feel free to modify and distribute it.
-
-
----
-
-If you need further customization, let me know! 🚀
-
-Hasan Syathiby / IT Syathiby 2024 | [CreatorB](https://github.com/CreatorB)
+Jika target hosting tidak menjalankan Node app, cukup deploy hasil static dari folder dist.

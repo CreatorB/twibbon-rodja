@@ -38,6 +38,8 @@ const elements = {
   copyPresetButton: document.getElementById("copyPresetButton"),
 
   galleryPreviewList: document.getElementById("galleryPreviewList"),
+  bottomNavButtons: Array.from(document.querySelectorAll(".bottom-nav-btn")),
+  fabScrollTop: document.getElementById("fabScrollTop"),
 };
 
 const simpleCards = new Map();
@@ -330,19 +332,38 @@ function updateManifestStatus(message, isWarning = false) {
   elements.manifestStatus.classList.toggle("warn", isWarning);
 }
 
+function activateTab(target) {
+  elements.tabButtons.forEach((item) => {
+    const active = item.dataset.target === target;
+    item.classList.toggle("active", active);
+    item.setAttribute("aria-selected", String(active));
+  });
+  elements.tabPanels.forEach((panel) => {
+    panel.classList.toggle("active", panel.id === target);
+  });
+  elements.bottomNavButtons.forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.target === target);
+  });
+}
+
 function setupTabs() {
   elements.tabButtons.forEach((button) => {
+    button.addEventListener("click", () => activateTab(button.dataset.target));
+  });
+  elements.bottomNavButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      const target = button.dataset.target;
-      elements.tabButtons.forEach((item) => {
-        const active = item === button;
-        item.classList.toggle("active", active);
-        item.setAttribute("aria-selected", String(active));
-      });
-      elements.tabPanels.forEach((panel) => {
-        panel.classList.toggle("active", panel.id === target);
-      });
+      activateTab(button.dataset.target);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     });
+  });
+}
+
+function setupFab() {
+  window.addEventListener("scroll", () => {
+    elements.fabScrollTop.classList.toggle("visible", window.scrollY > 200);
+  }, { passive: true });
+  elements.fabScrollTop.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   });
 }
 
@@ -713,6 +734,7 @@ async function bootstrap() {
   initSimpleCards();
   initGalleryCards();
   setupTabs();
+  setupFab();
 
   const scheduleSimpleRender = debounce(() => {
     renderSimplePreviews();

@@ -394,3 +394,130 @@ textarea {
     transform: translate(20px, -12px);
   }
 }
+
+/* ── Floating Action Button ── */
+.fab-top {
+  position: fixed;
+  right: 16px;
+  bottom: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(130deg, var(--pine-700), #ca9948);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(12, 50, 37, 0.35);
+  z-index: 98;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  transform: translateY(8px);
+}
+
+.fab-top.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.fab-top svg {
+  width: 20px;
+  height: 20px;
+  fill: #fff;
+}
+
+/* ── Bottom Navigation (mobile) ── */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: rgba(255, 252, 244, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid var(--line);
+  z-index: 100;
+  align-items: stretch;
+}
+
+.bottom-nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(19, 36, 30, 0.5);
+  padding: 0;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s;
+}
+
+.bottom-nav-btn::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 58px;
+  height: 28px;
+  border-radius: 14px;
+  background: rgba(42, 109, 86, 0.15);
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.bottom-nav-btn.active {
+  color: var(--pine-700);
+}
+
+.bottom-nav-btn.active::before {
+  transform: translateX(-50%) scaleX(1);
+}
+
+.bottom-nav-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.2s ease;
+}
+
+.bottom-nav-btn.active svg {
+  transform: translateY(-1px);
+}
+
+.bottom-nav-btn span {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 699px) {
+  .tabs {
+    display: none;
+  }
+
+  .bottom-nav {
+    display: flex;
+  }
+
+  body {
+    padding-bottom: 78px;
+  }
+
+  .fab-top {
+    bottom: 80px;
+  }
+}

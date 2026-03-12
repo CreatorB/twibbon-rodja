@@ -79,6 +79,66 @@ export const DEFAULT_TEMPLATE_PRESETS = [
       shadowColor: "rgba(7, 70, 98, 0.22)",
     },
   },
+  {
+    id: "pkbm-cahaya-sunnah-frame",
+    title: "PKBM Cahaya Sunnah Frame",
+    description: "Template unit PKBM Cahaya Sunnah",
+    imagePath: "/templates/ycs-frame/twibbon-pkbm-cahaya-sunnah.jpeg",
+    textBox: {
+      x: 0.5,
+      y: 0.68,
+      maxWidth: 0.58,
+      maxLines: 2,
+      minFont: 20,
+      maxFont: 40,
+      lineHeight: 1.04,
+      align: "center",
+    },
+    textStyle: {
+      mainColor: "#fff6d6",
+      shadowColor: "rgba(48, 12, 4, 0.45)",
+    },
+  },
+  {
+    id: "sdit-cahaya-sunnah-frame",
+    title: "SDIT Cahaya Sunnah Frame",
+    description: "Template unit SDIT Cahaya Sunnah",
+    imagePath: "/templates/ycs-frame/twibbon-sdit-cahaya-sunnah.jpeg",
+    textBox: {
+      x: 0.5,
+      y: 0.55,
+      maxWidth: 0.58,
+      maxLines: 2,
+      minFont: 20,
+      maxFont: 40,
+      lineHeight: 1.04,
+      align: "center",
+    },
+    textStyle: {
+      mainColor: "#ff8c00",
+      shadowColor: "rgba(255, 140, 0, 0.25)",
+    },
+  },
+  {
+    id: "stq-syathiby-frame",
+    title: "STQ Syathiby Frame",
+    description: "Template unit STQ Syathiby",
+    imagePath: "/templates/ycs-frame/twibbon-stq-syathiby.jpeg",
+    textBox: {
+      x: 0.5,
+      y: 0.60,
+      maxWidth: 0.5,
+      maxLines: 2,
+      minFont: 20,
+      maxFont: 38,
+      lineHeight: 1.03,
+      align: "center",
+    },
+    textStyle: {
+      mainColor: "#1d7a63",
+      shadowColor: "rgba(100, 180, 160, 0.2)",
+    },
+  },
 ];
 
 export const DEFAULT_GREETING_CARDS = [];

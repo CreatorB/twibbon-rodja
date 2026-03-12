@@ -102,6 +102,9 @@ function getSuggestedFontId(templateId) {
     "syathiby-frame": "instrument-serif",
     "kias-frame": "plus-jakarta",
     "albarkah-frame": "cormorant",
+    "pkbm-cahaya-sunnah-frame": "playfair",
+    "sdit-cahaya-sunnah-frame": "playfair",
+    "stq-syathiby-frame": "instrument-serif",
   };
 
   return suggested[templateId] ?? FONT_OPTIONS[0].id;

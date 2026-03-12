@@ -99,6 +99,66 @@
         "mainColor": "#f5f1cf",
         "shadowColor": "rgba(28, 80, 57, 0.22)"
       }
+    },
+    {
+      "id": "pkbm-cahaya-sunnah-frame",
+      "title": "PKBM Cahaya Sunnah Frame",
+      "description": "Template unit PKBM Cahaya Sunnah",
+      "image": "twibbon-pkbm-cahaya-sunnah.jpeg",
+      "textBox": {
+        "x": 0.5,
+        "y": 0.51,
+        "maxWidth": 0.58,
+        "maxLines": 2,
+        "minFont": 20,
+        "maxFont": 40,
+        "lineHeight": 1.04,
+        "align": "center"
+      },
+      "textStyle": {
+        "mainColor": "#fff6d6",
+        "shadowColor": "rgba(48, 12, 4, 0.45)"
+      }
+    },
+    {
+      "id": "sdit-cahaya-sunnah-frame",
+      "title": "SDIT Cahaya Sunnah Frame",
+      "description": "Template unit SDIT Cahaya Sunnah",
+      "image": "twibbon-sdit-cahaya-sunnah.jpeg",
+      "textBox": {
+        "x": 0.5,
+        "y": 0.54,
+        "maxWidth": 0.58,
+        "maxLines": 2,
+        "minFont": 20,
+        "maxFont": 40,
+        "lineHeight": 1.04,
+        "align": "center"
+      },
+      "textStyle": {
+        "mainColor": "#ff8c00",
+        "shadowColor": "rgba(255, 140, 0, 0.25)"
+      }
+    },
+    {
+      "id": "stq-syathiby-frame",
+      "title": "STQ Syathiby Frame",
+      "description": "Template unit STQ Syathiby",
+      "image": "twibbon-stq-syathiby.jpeg",
+      "textBox": {
+        "x": 0.5,
+        "y": 0.54,
+        "maxWidth": 0.5,
+        "maxLines": 2,
+        "minFont": 20,
+        "maxFont": 38,
+        "lineHeight": 1.03,
+        "align": "center"
+      },
+      "textStyle": {
+        "mainColor": "#1d7a63",
+        "shadowColor": "rgba(100, 180, 160, 0.2)"
+      }
     }
   ],
   "freeFrames": [

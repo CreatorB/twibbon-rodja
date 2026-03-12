@@ -98,9 +98,13 @@ function getFontById(fontId) {
 function getSuggestedFontId(templateId) {
   const suggested = {
     "rodja-frame": "playfair",
+    "rodja-2-frame": "playfair",
     "syathiby-frame": "instrument-serif",
     "kias-frame": "plus-jakarta",
     "albarkah-frame": "cormorant",
+    "pkbm-cahaya-sunnah-frame": "playfair",
+    "sdit-cahaya-sunnah-frame": "playfair",
+    "stq-syathiby-frame": "instrument-serif",
   };
 
   return suggested[templateId] ?? FONT_OPTIONS[0].id;

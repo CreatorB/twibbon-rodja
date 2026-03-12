@@ -20,6 +20,26 @@ export const DEFAULT_TEMPLATE_PRESETS = [
     },
   },
   {
+    id: "rodja-2-frame",
+    title: "Rodja 2 Frame",
+    description: "Template unit Rodja varian 2",
+    imagePath: "/templates/ycs-frame/twibbon-rodja-2.png",
+    textBox: {
+      x: 0.5,
+      y: 0.742,
+      maxWidth: 0.62,
+      maxLines: 2,
+      minFont: 20,
+      maxFont: 40,
+      lineHeight: 1.04,
+      align: "center",
+    },
+    textStyle: {
+      mainColor: "#f8dca0",
+      shadowColor: "rgba(53, 10, 6, 0.45)",
+    },
+  },
+  {
     id: "syathiby-frame",
     title: "Syathiby Frame",
     description: "Template unit Syathiby",

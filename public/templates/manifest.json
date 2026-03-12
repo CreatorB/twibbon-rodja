@@ -21,6 +21,26 @@
       }
     },
     {
+      "id": "rodja-2-frame",
+      "title": "Rodja 2 Frame",
+      "description": "Template unit Rodja varian 2",
+      "image": "twibbon-rodja-2.png",
+      "textBox": {
+        "x": 0.5,
+        "y": 0.810,
+        "maxWidth": 0.62,
+        "maxLines": 2,
+        "minFont": 20,
+        "maxFont": 40,
+        "lineHeight": 1.04,
+        "align": "center"
+      },
+      "textStyle": {
+        "mainColor": "#f8dca0",
+        "shadowColor": "rgba(53, 10, 6, 0.45)"
+      }
+    },
+    {
       "id": "syathiby-frame",
       "title": "Syathiby Frame",
       "description": "Template unit Syathiby",
@@ -93,6 +113,12 @@
       "title": "Syathiby Greeting",
       "description": "Kartu ucapan siap pakai",
       "image": "/templates/galleries/syathiby.jpeg"
+    },
+    {
+      "id": "gallery-al-barkah",
+      "title": "Al-Barkah Greeting",
+      "description": "Kartu ucapan siap pakai",
+      "image": "/templates/galleries/al-barkah.jpeg"
     }
   ]
 }

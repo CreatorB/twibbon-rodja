@@ -79,26 +79,26 @@
 
     <main class="app-shell">
       <header class="hero">
-        <p class="eyebrow">YCS Twibbon</p>
-        <h1>Yayasan Cahaya Sunnah Twibbon</h1>
-        <p>Platform kartu ucapan resmi di bawah naungan Yayasan Cahaya Sunnah.</p>
+        <p class="eyebrow" id="heroEyebrow">YCS Twibbon</p>
+        <h1 id="heroTitle">Yayasan Cahaya Sunnah Twibbon</h1>
+        <p id="heroDescription">Platform kartu ucapan resmi di bawah naungan Yayasan Cahaya Sunnah.</p>
       </header>
 
       <nav class="tabs" aria-label="Mode editor">
-        <button class="tab-button active" id="tabSimple" type="button" data-target="simplePanel" aria-selected="true">Simple</button>
-        <button class="tab-button" id="tabStudio" type="button" data-target="studioPanel" aria-selected="false">Studio</button>
-        <button class="tab-button" id="tabGallery" type="button" data-target="galleryPanel" aria-selected="false">Gallery</button>
+        <button class="tab-button active" id="tabSimple" type="button" data-target="simplePanel" aria-selected="true"><span id="tabLabelSimple">Simple</span></button>
+        <button class="tab-button" id="tabStudio" type="button" data-target="studioPanel" aria-selected="false"><span id="tabLabelStudio">Studio</span></button>
+        <button class="tab-button" id="tabGallery" type="button" data-target="galleryPanel" aria-selected="false"><span id="tabLabelGallery">Gallery</span></button>
       </nav>
 
       <section class="tab-panel active" id="simplePanel">
         <div class="card">
-          <h2>Simple</h2>
-          <p>Isi nama sekali, lalu seluruh template YCS langsung muncul dan siap dibagikan.</p>
+          <h2 id="simpleSectionTitle">Simple</h2>
+          <p id="simpleSectionDescription">Isi nama sekali, lalu seluruh template YCS langsung muncul dan siap dibagikan.</p>
           <label for="simpleNameInput">Nama</label>
           <input id="simpleNameInput" type="text" maxlength="80" placeholder="Ketik nama antum" />
           <label for="simpleSizeSelect">Ukuran Output</label>
           <select id="simpleSizeSelect"></select>
-          <p class="helper">Preview otomatis menyesuaikan setting placeholder tiap template.</p>
+          <p class="helper" id="simpleSectionHelper">Preview otomatis menyesuaikan setting placeholder tiap template.</p>
         </div>
 
         <div class="template-preview-list" id="simplePreviewList"></div>
@@ -107,8 +107,16 @@
       <section class="tab-panel" id="studioPanel">
         <div class="card studio-grid" id="studioGrid">
           <div class="studio-controls" id="studioControls">
-            <h2>Studio</h2>
-            <p>Atur detail teks, geser posisi, dan upload template pribadi untuk kebutuhan personal.</p>
+            <div class="section-head">
+              <h2 id="studioSectionTitle">Studio</h2>
+              <div class="usage-pill usage-pill-studio" id="studioUsageBadge" title="Total dipakai pada template Studio aktif">
+                <span class="usage-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M4 18h16v2H2V4h2v14zm2-4 4-4 3 3 5-5 1.4 1.4-6.4 6.4-3-3-2.6 2.6L6 14z"/></svg>
+                </span>
+                <span id="studioUsageCount" class="usage-count">0</span>
+              </div>
+            </div>
+            <p id="studioSectionDescription">Atur detail teks, geser posisi, dan upload template pribadi untuk kebutuhan personal.</p>
 
             <label for="studioTemplateSelect">Template</label>
             <select id="studioTemplateSelect"></select>
@@ -130,11 +138,6 @@
               </div>
             </div>
 
-            <label class="toggle-inline" for="studioAutoFontToggle">
-              <input id="studioAutoFontToggle" type="checkbox" checked />
-              <span>Auto font by template</span>
-            </label>
-
             <div class="control-row">
               <div>
                 <label for="studioColorInput">Warna Teks</label>
@@ -148,11 +151,11 @@
 
             <div class="control-row">
               <div>
-                <label for="studioOffsetXRange">Geser X</label>
+                <label for="studioOffsetXRange">Geser X (kiri-kanan)</label>
                 <input id="studioOffsetXRange" type="range" min="-30" max="30" value="0" />
               </div>
               <div>
-                <label for="studioOffsetYRange">Geser Y</label>
+                <label for="studioOffsetYRange">Geser Y (atas-bawah)</label>
                 <input id="studioOffsetYRange" type="range" min="-30" max="30" value="0" />
               </div>
             </div>
@@ -229,8 +232,8 @@
 
       <section class="tab-panel" id="galleryPanel">
         <div class="card">
-          <h2>Gallery</h2>
-          <p>Kumpulan kartu ucapan siap pakai. Tidak perlu edit teks, langsung download atau share.</p>
+          <h2 id="gallerySectionTitle">Gallery</h2>
+          <p id="gallerySectionDescription">Kumpulan kartu ucapan siap pakai. Tidak perlu edit teks, langsung download atau share.</p>
         </div>
 
         <div class="template-preview-list" id="galleryPreviewList"></div>
@@ -244,22 +247,22 @@
     <nav class="bottom-nav" aria-label="Navigasi utama">
       <button class="bottom-nav-btn active" type="button" data-target="simplePanel">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-        <span>Simple</span>
+        <span id="bottomTabLabelSimple">Simple</span>
       </button>
       <button class="bottom-nav-btn" type="button" data-target="studioPanel">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 14c-.55 0-1 .45-1 1v3h3l8.49-8.49-2.99-3L7 14zm14.71-9.12a1 1 0 0 0 0-1.41l-2.17-2.17a1 1 0 0 0-1.41 0l-1.7 1.7 3.59 3.59 1.69-1.71z"/></svg>
-        <span>Studio</span>
+        <span id="bottomTabLabelStudio">Studio</span>
       </button>
       <button class="bottom-nav-btn" type="button" data-target="galleryPanel">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-1 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
-        <span>Gallery</span>
+        <span id="bottomTabLabelGallery">Gallery</span>
       </button>
     </nav>
 
     <footer class="footer">
-      <span>Made with <span class="heart-green">&#9829;</span> by <a href="https://syathiby.github.io/" target="_blank" rel="noreferrer">IT Syathiby 2024</a></span>
+      <span><span id="footerCreditPrefix">Made with</span> <span class="heart-green">&#9829;</span> <span id="footerCreditBy">by</span> <a id="footerCreditLink" href="https://syathiby.github.io/" target="_blank" rel="noreferrer">IT Syathiby 2024</a></span>
       <span>|</span>
-      <a href="https://github.com/CreatorB/twibbon-rodja" target="_blank" rel="noreferrer">Open Source</a>
+      <a id="footerSourceLink" href="https://github.com/CreatorB/twibbon-rodja" target="_blank" rel="noreferrer">Open Source</a>
     </footer>
 
     <script type="module" src="/src/main.js"></script>

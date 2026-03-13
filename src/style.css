@@ -251,10 +251,101 @@ input[type="range"] {
   font-size: 16px;
 }
 
+.card-head,
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.card-head h3,
+.section-head h2 {
+  margin: 0;
+  min-width: 0;
+}
+
 .simple-card p {
   margin: 4px 0 10px;
   color: var(--muted);
   font-size: 13px;
+}
+
+.usage-pill {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 5px;
+  border: 1px solid rgba(30, 92, 70, 0.25);
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.75);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--pine-900);
+}
+
+.usage-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  color: currentColor;
+  opacity: 0.88;
+}
+
+.usage-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+.usage-count {
+  min-width: 1ch;
+}
+
+.usage-count.usage-pop {
+  animation: usagePop 0.18s ease-out;
+}
+
+@keyframes usagePop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.16);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .usage-count.usage-pop {
+    animation: none;
+  }
+}
+
+.usage-pill-frame {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.usage-pill-gallery {
+  background: rgba(226, 246, 237, 0.86);
+  border-color: rgba(42, 109, 86, 0.34);
+  color: #1b5844;
+}
+
+.usage-pill-studio {
+  background: rgba(243, 232, 201, 0.82);
+  border-color: rgba(126, 93, 36, 0.26);
+  color: #6c4d1f;
+}
+
+.usage-pill.offline {
+  color: #8f5a1a;
 }
 
 .simple-canvas {
@@ -299,22 +390,6 @@ input[type="range"] {
   display: grid;
   gap: 10px;
   grid-template-columns: 1fr;
-}
-
-.toggle-inline {
-  margin-top: 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--muted);
-  user-select: none;
-}
-
-.toggle-inline input {
-  width: 16px;
-  height: 16px;
-  margin: 0;
 }
 
 .studio-preview-wrap {

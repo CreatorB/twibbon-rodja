@@ -1,4 +1,31 @@
 {
+  "appConfig": {
+    "counterNamespace": "ucapan-rodja-co-id",
+    "counterEnabled": true,
+    "fileNamePrefix": "ycs",
+    "pageTitle": "YCS Twibbon",
+    "heroEyebrow": "YCS Twibbon",
+    "heroTitle": "Yayasan Cahaya Sunnah Twibbon",
+    "heroDescription": "Platform kartu ucapan resmi di bawah naungan Yayasan Cahaya Sunnah.",
+    "metaDescription": "Platform kartu ucapan resmi Yayasan Cahaya Sunnah untuk membuat dan membagikan kartu ucapan dengan tampilan rapi, cepat, dan siap pakai.",
+    "canonicalUrl": "https://ucapan.rodja.co.id/",
+    "tabLabelSimple": "Simple",
+    "tabLabelStudio": "Studio",
+    "tabLabelGallery": "Gallery",
+    "simpleSectionTitle": "Simple",
+    "simpleSectionDescription": "Isi nama sekali, lalu seluruh template YCS langsung muncul dan siap dibagikan.",
+    "simpleSectionHelper": "Preview otomatis menyesuaikan setting placeholder tiap template.",
+    "studioSectionTitle": "Studio",
+    "studioSectionDescription": "Atur detail teks, geser posisi, dan upload template pribadi untuk kebutuhan personal.",
+    "gallerySectionTitle": "Gallery",
+    "gallerySectionDescription": "Kumpulan kartu ucapan siap pakai. Tidak perlu edit teks, langsung download atau share.",
+    "footerCreditPrefix": "Made with",
+    "footerCreditBy": "by",
+    "footerCreditLinkText": "IT Syathiby 2024",
+    "footerCreditLinkHref": "https://syathiby.github.io/",
+    "footerSourceLinkText": "Open Source",
+    "footerSourceLinkHref": "https://github.com/CreatorB/twibbon-rodja"
+  },
   "ycsTemplates": [
     {
       "id": "rodja-frame",

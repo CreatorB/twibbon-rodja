@@ -224,7 +224,10 @@
 
           <div class="studio-preview-wrap" id="studioPreviewWrap">
             <p id="studioMeta">1080 x 1350</p>
-            <canvas id="studioCanvas" width="1080" height="1350"></canvas>
+            <div class="canvas-shell studio-canvas-shell" id="studioCanvasShell" style="aspect-ratio: 1080 / 1350;">
+              <div class="canvas-skeleton" aria-hidden="true"></div>
+              <canvas id="studioCanvas" width="1080" height="1350"></canvas>
+            </div>
             <p class="helper">Tip: tekan dan geser teks langsung pada preview untuk memindahkan posisi.</p>
           </div>
         </div>

@@ -348,11 +348,51 @@ input[type="range"] {
   color: #8f5a1a;
 }
 
-.simple-canvas {
+.canvas-shell {
+  position: relative;
   width: 100%;
+  overflow: hidden;
   border-radius: 12px;
   border: 1px solid rgba(13, 52, 40, 0.2);
   background: #fff;
+}
+
+.canvas-skeleton {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(110deg, rgba(255, 255, 255, 0) 20%, rgba(255, 255, 255, 0.7) 36%, rgba(255, 255, 255, 0) 52%),
+    linear-gradient(180deg, rgba(225, 237, 229, 0.92) 0%, rgba(242, 233, 210, 0.88) 100%);
+  background-size: 200% 100%, 100% 100%;
+  animation: shimmerSlide 1.15s linear infinite;
+  transition: opacity 0.22s ease;
+}
+
+.simple-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: #fff;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.canvas-shell.is-loaded .canvas-skeleton {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.canvas-shell.is-loaded .simple-canvas {
+  opacity: 1;
+}
+
+@keyframes shimmerSlide {
+  0% {
+    background-position: 200% 0, 0 0;
+  }
+  100% {
+    background-position: -20% 0, 0 0;
+  }
 }
 
 .simple-actions {
@@ -407,8 +447,10 @@ input[type="range"] {
 
 #studioCanvas {
   width: 100%;
-  border-radius: 12px;
-  border: 1px solid rgba(13, 52, 40, 0.2);
+  height: 100%;
+  display: block;
+  border-radius: 0;
+  border: 0;
   background: #fff;
   touch-action: manipulation;
 }

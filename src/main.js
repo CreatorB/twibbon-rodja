@@ -43,6 +43,7 @@ const elements = {
   studioDownloadButton: document.getElementById("studioDownloadButton"),
   studioShareButton: document.getElementById("studioShareButton"),
   studioCanvas: document.getElementById("studioCanvas"),
+  studioCanvasShell: document.getElementById("studioCanvasShell"),
   studioMeta: document.getElementById("studioMeta"),
   studioUsageBadge: document.getElementById("studioUsageBadge"),
   studioUsageCount: document.getElementById("studioUsageCount"),
@@ -93,6 +94,8 @@ const state = {
   appConfig: {
     ...DEFAULT_APP_CONFIG,
   },
+  studioPreviewReady: false,
+  studioLastImagePath: "",
   studioLastTextBounds: null,
   studioHintDismissTimer: null,
   studioDrag: {
@@ -1016,6 +1019,13 @@ async function shareBlob(blob, filename) {
   return false;
 }
 
+function setCanvasShellLoaded(shell, loaded) {
+  if (!shell) {
+    return;
+  }
+  shell.classList.toggle("is-loaded", loaded);
+}
+
 function initSimpleCards() {
   simpleCards.clear();
   elements.simplePreviewList.innerHTML = "";
@@ -1035,7 +1045,10 @@ function initSimpleCards() {
         </div>
       </div>
       <p>${template.description}</p>
-      <canvas class="simple-canvas"></canvas>
+      <div class="canvas-shell" style="aspect-ratio: 1080 / 1350;">
+        <div class="canvas-skeleton" aria-hidden="true"></div>
+        <canvas class="simple-canvas"></canvas>
+      </div>
       <div class="simple-actions">
         <button type="button" class="small-btn">Download</button>
         <button type="button" class="small-btn ghost">Share</button>
@@ -1044,10 +1057,11 @@ function initSimpleCards() {
 
     elements.simplePreviewList.appendChild(card);
     const canvas = card.querySelector("canvas");
+    const canvasShell = card.querySelector(".canvas-shell");
     const usageBadge = card.querySelector(".usage-pill");
     const [downloadButton, shareButton] = card.querySelectorAll("button");
 
-    simpleCards.set(template.id, { template, canvas, sourceId, usageBadge });
+    simpleCards.set(template.id, { template, canvas, canvasShell, sourceId, usageBadge });
     updateCardUsageBadge(sourceId);
     downloadButton.addEventListener("click", () => handleSimpleDownload(template.id));
     shareButton.addEventListener("click", () => handleSimpleShare(template.id));
@@ -1081,7 +1095,10 @@ function initGalleryCards() {
         </div>
       </div>
       <p>${item.description}</p>
-      <canvas class="simple-canvas"></canvas>
+      <div class="canvas-shell" style="aspect-ratio: 4 / 5;">
+        <div class="canvas-skeleton" aria-hidden="true"></div>
+        <canvas class="simple-canvas"></canvas>
+      </div>
       <div class="simple-actions">
         <button type="button" class="small-btn">Download</button>
         <button type="button" class="small-btn ghost">Share</button>
@@ -1090,10 +1107,11 @@ function initGalleryCards() {
 
     elements.galleryPreviewList.appendChild(card);
     const canvas = card.querySelector("canvas");
+    const canvasShell = card.querySelector(".canvas-shell");
     const usageBadge = card.querySelector(".usage-pill");
     const [downloadButton, shareButton] = card.querySelectorAll("button");
 
-    galleryCards.set(item.id, { card: item, canvas, sourceId, usageBadge });
+    galleryCards.set(item.id, { card: item, canvas, canvasShell, sourceId, usageBadge });
     updateCardUsageBadge(sourceId);
     downloadButton.addEventListener("click", () => handleGreetingDownload(item.id));
     shareButton.addEventListener("click", () => handleGreetingShare(item.id));
@@ -1107,7 +1125,10 @@ async function renderSimplePreviews() {
   const previewHeight = Math.round((size.height / size.width) * previewWidth);
   const name = elements.simpleNameInput.value.trim() || "Nama Antum";
 
-  const jobs = Array.from(simpleCards.values()).map(async ({ template, canvas }) => {
+  const jobs = Array.from(simpleCards.values()).map(async ({ template, canvas, canvasShell }) => {
+    if (canvasShell) {
+      canvasShell.style.aspectRatio = `${size.width} / ${size.height}`;
+    }
     await renderCardToCanvas({
       canvas,
       imagePath: template.imagePath,
@@ -1119,6 +1140,7 @@ async function renderSimplePreviews() {
       mainColor: template.textStyle?.mainColor,
       autoShrink: true,
     });
+    setCanvasShellLoaded(canvasShell, true);
   });
 
   await Promise.all(jobs);
@@ -1131,11 +1153,15 @@ async function renderGalleryPreviews() {
   const token = ++renderState.galleryToken;
   const previewWidth = 540;
 
-  const jobs = Array.from(galleryCards.values()).map(async ({ card, canvas }) => {
+  const jobs = Array.from(galleryCards.values()).map(async ({ card, canvas, canvasShell }) => {
     const image = await loadImage(card.imagePath);
     const ratio = image.height / image.width;
     const previewHeight = Math.round(previewWidth * ratio);
+    if (canvasShell) {
+      canvasShell.style.aspectRatio = `${previewWidth} / ${previewHeight}`;
+    }
     await renderImageOnly(canvas, card.imagePath, previewWidth, previewHeight);
+    setCanvasShellLoaded(canvasShell, true);
   });
 
   await Promise.all(jobs);
@@ -1153,8 +1179,15 @@ async function renderStudio() {
   const size = getSizeById(elements.studioSizeSelect.value);
   const font = getFontById(elements.studioFontSelect.value);
   const preset = getStudioPreset();
+  const imageChanged = preset.imagePath !== state.studioLastImagePath || !state.studioPreviewReady;
 
   elements.studioMeta.textContent = `${size.width} x ${size.height} • ${preset.title}`;
+  if (elements.studioCanvasShell) {
+    elements.studioCanvasShell.style.aspectRatio = `${size.width} / ${size.height}`;
+  }
+  if (imageChanged) {
+    setCanvasShellLoaded(elements.studioCanvasShell, false);
+  }
 
   const result = await renderCardToCanvas({
     canvas: elements.studioCanvas,
@@ -1175,6 +1208,9 @@ async function renderStudio() {
   }
 
   state.studioLastTextBounds = result.textBounds;
+  state.studioLastImagePath = preset.imagePath;
+  state.studioPreviewReady = true;
+  setCanvasShellLoaded(elements.studioCanvasShell, true);
   updatePresetOutput(preset);
 }
 

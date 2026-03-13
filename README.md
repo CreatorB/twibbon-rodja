@@ -19,6 +19,9 @@ Web app generator kartu ucapan berbasis Vite dengan 3 tab:
 - Tidak ada edit teks atau watermark.
 - Card siap pakai untuk Download atau Share langsung.
 
+## Changelog
+- Riwayat update tersedia di `CHANGELOG.md`.
+
 ## Stack
 - Vite
 - HTML
@@ -36,9 +39,146 @@ Build production:
 npm run build
 ```
 
+## Counter Production Namespace
+- Counter CountAPI dikonfigurasi lewat `appConfig.counterNamespace` di `public/templates/manifest.json`.
+- Build atau deploy ulang tidak akan mereset counter selama namespace dan ID template/card tidak diubah.
+- Jika project ini di-clone untuk domain lain, cukup ganti nilai `counterNamespace` agar data counter terpisah.
+- Jika ingin mematikan fitur counter, ubah `appConfig.counterEnabled` menjadi `false`.
+- Jika ingin mengubah prefix nama file hasil download/share, ubah `appConfig.fileNamePrefix`.
+
+## Cara Pakai `appConfig`
+Gunakan `appConfig` di `public/templates/manifest.json` untuk mengubah konfigurasi aplikasi tanpa edit file JavaScript.
+
+Contoh:
+```json
+{
+  "appConfig": {
+    "counterNamespace": "ucapan-rodja-co-id",
+    "counterEnabled": true,
+    "fileNamePrefix": "ycs",
+    "pageTitle": "YCS Eid Greeting Card",
+    "heroEyebrow": "YCS Eid Greeting Card",
+    "heroTitle": "Yayasan Cahaya Sunnah",
+    "heroDescription": "Platform kartu ucapan id resmi di bawah naungan Yayasan Cahaya Sunnah.",
+    "metaDescription": "Platform kartu ucapan id resmi Yayasan Cahaya Sunnah untuk membuat dan membagikan kartu ucapan dengan tampilan rapi, cepat, dan siap pakai.",
+    "canonicalUrl": "https://ucapan.rodja.co.id/",
+    "tabLabelSimple": "Simple",
+    "tabLabelStudio": "Studio",
+    "tabLabelGallery": "Gallery",
+    "simpleSectionTitle": "Simple",
+    "simpleSectionDescription": "Isi nama sekali, lalu seluruh template YCS langsung muncul dan siap dibagikan.",
+    "simpleSectionHelper": "Preview otomatis menyesuaikan setting placeholder tiap template.",
+    "studioSectionTitle": "Studio",
+    "studioSectionDescription": "Atur detail teks, geser posisi, dan upload template pribadi untuk kebutuhan personal.",
+    "gallerySectionTitle": "Gallery",
+    "gallerySectionDescription": "Kumpulan kartu ucapan siap pakai. Tidak perlu edit teks, langsung download atau share.",
+    "footerCreditPrefix": "Made with",
+    "footerCreditBy": "by",
+    "footerCreditLinkText": "IT Syathiby 2024",
+    "footerCreditLinkHref": "https://syathiby.github.io/",
+    "footerSourceLinkText": "Open Source",
+    "footerSourceLinkHref": "https://github.com/CreatorB/twibbon-rodja"
+  },
+  "ycsTemplates": [],
+  "freeFrames": []
+}
+```
+
+Keterangan field:
+- `counterNamespace`: namespace CountAPI agar counter tidak bercampur dengan project/domain lain.
+- `counterEnabled`: `true/false` untuk menyalakan atau mematikan fitur counter.
+- `fileNamePrefix`: prefix nama file saat download/share.
+- `pageTitle`: judul halaman browser.
+- `heroEyebrow`: teks kecil di atas judul hero.
+- `heroTitle`: judul utama hero.
+- `heroDescription`: deskripsi singkat di hero.
+- `metaDescription`: deskripsi SEO dasar untuk halaman.
+- `canonicalUrl`: canonical URL halaman production.
+- `tabLabelSimple`, `tabLabelStudio`, `tabLabelGallery`: label tab desktop + mobile.
+- `simpleSectionTitle`, `simpleSectionDescription`, `simpleSectionHelper`: teks panel Simple.
+- `studioSectionTitle`, `studioSectionDescription`: teks panel Studio.
+- `gallerySectionTitle`, `gallerySectionDescription`: teks panel Gallery.
+- `footerCreditPrefix`, `footerCreditBy`: teks footer bagian kredit.
+- `footerCreditLinkText`, `footerCreditLinkHref`: label + URL link kredit.
+- `footerSourceLinkText`, `footerSourceLinkHref`: label + URL link open source.
+
+### Preset Siap Pakai
+
+Preset A - Production Rodja (saat ini):
+```json
+{
+  "appConfig": {
+    "counterNamespace": "ucapan-rodja-co-id",
+    "counterEnabled": true,
+    "fileNamePrefix": "ycs",
+    "pageTitle": "YCS Eid Greeting Card",
+    "heroEyebrow": "YCS Eid Greeting Card",
+    "heroTitle": "Yayasan Cahaya Sunnah",
+    "heroDescription": "Platform kartu ucapan id resmi di bawah naungan Yayasan Cahaya Sunnah.",
+    "metaDescription": "Platform kartu ucapan id resmi Yayasan Cahaya Sunnah untuk membuat dan membagikan kartu ucapan dengan tampilan rapi, cepat, dan siap pakai.",
+    "canonicalUrl": "https://ucapan.rodja.co.id/",
+    "tabLabelSimple": "Simple",
+    "tabLabelStudio": "Studio",
+    "tabLabelGallery": "Gallery",
+    "simpleSectionTitle": "Simple",
+    "simpleSectionDescription": "Isi nama sekali, lalu seluruh template YCS langsung muncul dan siap dibagikan.",
+    "simpleSectionHelper": "Preview otomatis menyesuaikan setting placeholder tiap template.",
+    "studioSectionTitle": "Studio",
+    "studioSectionDescription": "Atur detail teks, geser posisi, dan upload template pribadi untuk kebutuhan personal.",
+    "gallerySectionTitle": "Gallery",
+    "gallerySectionDescription": "Kumpulan kartu ucapan siap pakai. Tidak perlu edit teks, langsung download atau share.",
+    "footerCreditPrefix": "Made with",
+    "footerCreditBy": "by",
+    "footerCreditLinkText": "IT Syathiby 2024",
+    "footerCreditLinkHref": "https://syathiby.github.io/",
+    "footerSourceLinkText": "Open Source",
+    "footerSourceLinkHref": "https://github.com/CreatorB/twibbon-rodja"
+  }
+}
+```
+
+Preset B - Generic Instansi Lain (template):
+```json
+{
+  "appConfig": {
+    "counterNamespace": "ucapan-nama-instansi",
+    "counterEnabled": true,
+    "fileNamePrefix": "ucapan",
+    "pageTitle": "Ucapan Instansi",
+    "heroEyebrow": "Ucapan Resmi",
+    "heroTitle": "Twibbon Instansi",
+    "heroDescription": "Platform kartu ucapan id resmi instansi.",
+    "metaDescription": "Generator twibbon resmi untuk membuat dan membagikan kartu ucapan.",
+    "canonicalUrl": "https://contoh-domain.id/",
+    "tabLabelSimple": "Simple",
+    "tabLabelStudio": "Studio",
+    "tabLabelGallery": "Gallery",
+    "simpleSectionTitle": "Simple",
+    "simpleSectionDescription": "Isi nama sekali, semua template langsung siap.",
+    "simpleSectionHelper": "Preview menyesuaikan placeholder setiap template.",
+    "studioSectionTitle": "Studio",
+    "studioSectionDescription": "Atur detail teks dan posisi sesuai kebutuhan.",
+    "gallerySectionTitle": "Gallery",
+    "gallerySectionDescription": "Kartu siap pakai untuk download atau share.",
+    "footerCreditPrefix": "Made with",
+    "footerCreditBy": "by",
+    "footerCreditLinkText": "Tim IT",
+    "footerCreditLinkHref": "https://example.com/",
+    "footerSourceLinkText": "Open Source",
+    "footerSourceLinkHref": "https://github.com/your-org/your-repo"
+  }
+}
+```
+
+Langkah cepat migrasi domain lain:
+1. Ganti nilai `appConfig` sesuai brand/domain target.
+2. Pastikan `counterNamespace` unik untuk domain target.
+3. Ganti `canonicalUrl` ke URL production yang benar.
+4. Build lalu deploy seperti biasa.
+
 ## Struktur Utama
 ```txt
-twibbon-rodja/
+ycs-eid-greeting-card/
   index.html
   public/
     icon-32.png
@@ -175,7 +315,7 @@ Jika targetnya langsung live dan server sering OOM saat build, gunakan urutan in
 
 ```sh
 # lokal
-cd D:/IT/HSN/syathiby/ycs/twibbon-rodja
+cd D:/IT/HSN/syathiby/ycs/ycs-eid-greeting-card
 git checkout dev
 git pull origin dev
 npm install
@@ -223,7 +363,7 @@ Catatan:
 ### Metode B: Build di Lokal + Upload ke Hosting (disarankan)
 ```sh
 # di lokal
-cd D:/IT/HSN/syathiby/ycs/twibbon-rodja
+cd D:/IT/HSN/syathiby/ycs/ycs-eid-greeting-card
 git checkout dev
 git pull origin dev
 npm install

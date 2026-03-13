@@ -1,4 +1,31 @@
 {
+  "appConfig": {
+    "counterNamespace": "ucapan-rodja-co-id",
+    "counterEnabled": true,
+    "fileNamePrefix": "ycs",
+    "pageTitle": "YCS Eid Greeting Card",
+    "heroEyebrow": "YCS Eid Greeting Card",
+    "heroTitle": "Yayasan Cahaya Sunnah",
+    "heroDescription": "Platform kartu ucapan id resmi di bawah naungan Yayasan Cahaya Sunnah.",
+    "metaDescription": "Platform kartu ucapan id resmi Yayasan Cahaya Sunnah untuk membuat dan membagikan kartu ucapan dengan tampilan rapi, cepat, dan siap pakai.",
+    "canonicalUrl": "https://ucapan.rodja.co.id/",
+    "tabLabelSimple": "Simple",
+    "tabLabelStudio": "Studio",
+    "tabLabelGallery": "Gallery",
+    "simpleSectionTitle": "Simple",
+    "simpleSectionDescription": "Isi nama sekali, lalu seluruh template YCS langsung muncul dan siap dibagikan.",
+    "simpleSectionHelper": "Preview otomatis menyesuaikan setting placeholder tiap template.",
+    "studioSectionTitle": "Studio",
+    "studioSectionDescription": "Atur detail teks, geser posisi, dan upload template pribadi untuk kebutuhan personal.",
+    "gallerySectionTitle": "Gallery",
+    "gallerySectionDescription": "Kumpulan kartu ucapan siap pakai. Tidak perlu edit teks, langsung download atau share.",
+    "footerCreditPrefix": "Made with",
+    "footerCreditBy": "by",
+    "footerCreditLinkText": "IT Syathiby 2024",
+    "footerCreditLinkHref": "https://syathiby.github.io/",
+    "footerSourceLinkText": "Open Source",
+    "footerSourceLinkHref": "https://github.com/CreatorB/twibbon-rodja"
+  },
   "ycsTemplates": [
     {
       "id": "rodja-frame",
@@ -138,6 +165,26 @@
       "textStyle": {
         "mainColor": "#ff8c00",
         "shadowColor": "rgba(255, 140, 0, 0.25)"
+      }
+    },
+    {
+      "id": "tk-cahaya-sunnah-frame",
+      "title": "TK Cahaya Sunnah Frame",
+      "description": "Template unit TK Cahaya Sunnah",
+      "image": "twibbon-tk-cahaya-sunnah.png",
+      "textBox": {
+        "x": 0.5,
+        "y": 0.53,
+        "maxWidth": 0.58,
+        "maxLines": 2,
+        "minFont": 20,
+        "maxFont": 40,
+        "lineHeight": 1.04,
+        "align": "center"
+      },
+      "textStyle": {
+        "mainColor": "#ffffff",
+        "shadowColor": "rgba(0, 0, 0, 0.35)"
       }
     },
     {

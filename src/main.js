@@ -1,11 +1,31 @@
 import "./style.css";
-import { DEFAULT_TEMPLATE_PRESETS, FONT_OPTIONS, OUTPUT_SIZES, loadTemplateData } from "./templates.js";
+import { DEFAULT_APP_CONFIG, DEFAULT_TEMPLATE_PRESETS, FONT_OPTIONS, OUTPUT_SIZES, loadTemplateData } from "./templates.js";
 
 const imageCache = new Map();
 
 const elements = {
   tabButtons: Array.from(document.querySelectorAll(".tab-button")),
   tabPanels: Array.from(document.querySelectorAll(".tab-panel")),
+  heroEyebrow: document.getElementById("heroEyebrow"),
+  heroTitle: document.getElementById("heroTitle"),
+  heroDescription: document.getElementById("heroDescription"),
+  tabLabelSimple: document.getElementById("tabLabelSimple"),
+  tabLabelStudio: document.getElementById("tabLabelStudio"),
+  tabLabelGallery: document.getElementById("tabLabelGallery"),
+  bottomTabLabelSimple: document.getElementById("bottomTabLabelSimple"),
+  bottomTabLabelStudio: document.getElementById("bottomTabLabelStudio"),
+  bottomTabLabelGallery: document.getElementById("bottomTabLabelGallery"),
+  simpleSectionTitle: document.getElementById("simpleSectionTitle"),
+  simpleSectionDescription: document.getElementById("simpleSectionDescription"),
+  simpleSectionHelper: document.getElementById("simpleSectionHelper"),
+  studioSectionTitle: document.getElementById("studioSectionTitle"),
+  studioSectionDescription: document.getElementById("studioSectionDescription"),
+  gallerySectionTitle: document.getElementById("gallerySectionTitle"),
+  gallerySectionDescription: document.getElementById("gallerySectionDescription"),
+  footerCreditPrefix: document.getElementById("footerCreditPrefix"),
+  footerCreditBy: document.getElementById("footerCreditBy"),
+  footerCreditLink: document.getElementById("footerCreditLink"),
+  footerSourceLink: document.getElementById("footerSourceLink"),
   simpleNameInput: document.getElementById("simpleNameInput"),
   simpleSizeSelect: document.getElementById("simpleSizeSelect"),
   simplePreviewList: document.getElementById("simplePreviewList"),
@@ -15,7 +35,6 @@ const elements = {
   studioNameInput: document.getElementById("studioNameInput"),
   studioSizeSelect: document.getElementById("studioSizeSelect"),
   studioFontSelect: document.getElementById("studioFontSelect"),
-  studioAutoFontToggle: document.getElementById("studioAutoFontToggle"),
   studioColorInput: document.getElementById("studioColorInput"),
   studioFontSizeRange: document.getElementById("studioFontSizeRange"),
   studioOffsetXRange: document.getElementById("studioOffsetXRange"),
@@ -24,7 +43,10 @@ const elements = {
   studioDownloadButton: document.getElementById("studioDownloadButton"),
   studioShareButton: document.getElementById("studioShareButton"),
   studioCanvas: document.getElementById("studioCanvas"),
+  studioCanvasShell: document.getElementById("studioCanvasShell"),
   studioMeta: document.getElementById("studioMeta"),
+  studioUsageBadge: document.getElementById("studioUsageBadge"),
+  studioUsageCount: document.getElementById("studioUsageCount"),
   studioGrid: document.getElementById("studioGrid"),
   studioControls: document.getElementById("studioControls"),
   studioActions: document.getElementById("studioActions"),
@@ -58,8 +80,22 @@ const renderState = {
 };
 
 const STUDIO_HINT_STORAGE_KEY = "ycs-studio-drag-hint-dismissed";
+const COUNTER_KEYS = {
+  total: "total_used",
+  download: "total_download",
+  share: "total_share",
+};
+const COUNTER_COOLDOWN_MS = 4000;
+const COUNTER_FLUSH_LIMIT = 24;
+const COUNTER_QUEUE_MAX = 300;
+const ITEM_COUNTER_PREFIX = "item_used_";
 
 const state = {
+  appConfig: {
+    ...DEFAULT_APP_CONFIG,
+  },
+  studioPreviewReady: false,
+  studioLastImagePath: "",
   studioLastTextBounds: null,
   studioHintDismissTimer: null,
   studioDrag: {
@@ -70,6 +106,19 @@ const state = {
     startY: 0,
     startOffsetX: 0,
     startOffsetY: 0,
+  },
+  usageCounter: {
+    namespace: "",
+    totals: {
+      [COUNTER_KEYS.total]: 0,
+      [COUNTER_KEYS.download]: 0,
+      [COUNTER_KEYS.share]: 0,
+    },
+    itemTotals: {},
+    queue: [],
+    cooldown: new Map(),
+    initialized: false,
+    offline: false,
   },
 };
 
@@ -104,14 +153,11 @@ function getSuggestedFontId(templateId) {
     "albarkah-frame": "cormorant",
     "pkbm-cahaya-sunnah-frame": "playfair",
     "sdit-cahaya-sunnah-frame": "playfair",
+    "tk-cahaya-sunnah-frame": "playfair",
     "stq-syathiby-frame": "instrument-serif",
   };
 
   return suggested[templateId] ?? FONT_OPTIONS[0].id;
-}
-
-function isAutoFontEnabled() {
-  return elements.studioAutoFontToggle?.checked ?? true;
 }
 
 function parsePercentRange(element) {
@@ -482,6 +528,467 @@ function dismissStudioMobileHint() {
   }, 170);
 }
 
+function getCounterNamespace() {
+  return state.usageCounter.namespace || DEFAULT_APP_CONFIG.counterNamespace;
+}
+
+function getFileNamePrefix() {
+  return state.appConfig.fileNamePrefix || DEFAULT_APP_CONFIG.fileNamePrefix;
+}
+
+function updateMetaContent(selector, value) {
+  if (!value) {
+    return;
+  }
+  const node = document.querySelector(selector);
+  if (node) {
+    node.setAttribute("content", value);
+  }
+}
+
+function applyAppConfig() {
+  const config = state.appConfig;
+
+  if (elements.heroEyebrow) {
+    elements.heroEyebrow.textContent = config.heroEyebrow;
+  }
+  if (elements.heroTitle) {
+    elements.heroTitle.textContent = config.heroTitle;
+  }
+  if (elements.heroDescription) {
+    elements.heroDescription.textContent = config.heroDescription;
+  }
+  if (elements.tabLabelSimple) {
+    elements.tabLabelSimple.textContent = config.tabLabelSimple;
+  }
+  if (elements.tabLabelStudio) {
+    elements.tabLabelStudio.textContent = config.tabLabelStudio;
+  }
+  if (elements.tabLabelGallery) {
+    elements.tabLabelGallery.textContent = config.tabLabelGallery;
+  }
+  if (elements.bottomTabLabelSimple) {
+    elements.bottomTabLabelSimple.textContent = config.tabLabelSimple;
+  }
+  if (elements.bottomTabLabelStudio) {
+    elements.bottomTabLabelStudio.textContent = config.tabLabelStudio;
+  }
+  if (elements.bottomTabLabelGallery) {
+    elements.bottomTabLabelGallery.textContent = config.tabLabelGallery;
+  }
+  if (elements.simpleSectionTitle) {
+    elements.simpleSectionTitle.textContent = config.simpleSectionTitle;
+  }
+  if (elements.simpleSectionDescription) {
+    elements.simpleSectionDescription.textContent = config.simpleSectionDescription;
+  }
+  if (elements.simpleSectionHelper) {
+    elements.simpleSectionHelper.textContent = config.simpleSectionHelper;
+  }
+  if (elements.studioSectionTitle) {
+    elements.studioSectionTitle.textContent = config.studioSectionTitle;
+  }
+  if (elements.studioSectionDescription) {
+    elements.studioSectionDescription.textContent = config.studioSectionDescription;
+  }
+  if (elements.gallerySectionTitle) {
+    elements.gallerySectionTitle.textContent = config.gallerySectionTitle;
+  }
+  if (elements.gallerySectionDescription) {
+    elements.gallerySectionDescription.textContent = config.gallerySectionDescription;
+  }
+  if (elements.footerCreditPrefix) {
+    elements.footerCreditPrefix.textContent = config.footerCreditPrefix;
+  }
+  if (elements.footerCreditBy) {
+    elements.footerCreditBy.textContent = config.footerCreditBy;
+  }
+  if (elements.footerCreditLink) {
+    elements.footerCreditLink.textContent = config.footerCreditLinkText;
+    elements.footerCreditLink.href = config.footerCreditLinkHref;
+  }
+  if (elements.footerSourceLink) {
+    elements.footerSourceLink.textContent = config.footerSourceLinkText;
+    elements.footerSourceLink.href = config.footerSourceLinkHref;
+  }
+
+  document.title = config.pageTitle;
+
+  updateMetaContent('meta[name="description"]', config.metaDescription);
+  updateMetaContent('meta[property="og:title"]', config.pageTitle);
+  updateMetaContent('meta[property="og:description"]', config.metaDescription);
+  updateMetaContent('meta[name="twitter:title"]', config.pageTitle);
+  updateMetaContent('meta[name="twitter:description"]', config.metaDescription);
+
+  const canonicalNode = document.querySelector('link[rel="canonical"]');
+  if (canonicalNode && config.canonicalUrl) {
+    canonicalNode.setAttribute("href", config.canonicalUrl);
+  }
+
+  updateMetaContent('meta[property="og:url"]', config.canonicalUrl);
+}
+
+function getCounterStorageKey(type) {
+  return `${type}:${state.usageCounter.namespace}`;
+}
+
+function readJsonStorage(key, fallback) {
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) {
+      return fallback;
+    }
+    return JSON.parse(raw);
+  } catch {
+    return fallback;
+  }
+}
+
+function writeJsonStorage(key, value) {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Ignore storage quota/restrictions.
+  }
+}
+
+function formatCount(value) {
+  return new Intl.NumberFormat("id-ID").format(Math.max(0, Number(value) || 0));
+}
+
+function animateCountIncrease(node, nextValue) {
+  const prevValue = Number(node.dataset.countValue || 0);
+  node.dataset.countValue = String(nextValue);
+  if (nextValue <= prevValue) {
+    return;
+  }
+
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    return;
+  }
+
+  node.classList.remove("usage-pop");
+  // Force reflow so repeated increments can retrigger the animation.
+  void node.offsetWidth;
+  node.classList.add("usage-pop");
+}
+
+function sanitizeCounterKeyPart(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9:-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function getSimpleSourceId(templateId) {
+  return `simple:${templateId}`;
+}
+
+function getGallerySourceId(cardId) {
+  return `gallery:${cardId}`;
+}
+
+function getStudioSourceId(templateId) {
+  return `studio:${templateId}`;
+}
+
+function getTrackedSourceIds() {
+  const ids = [
+    ...Array.from(simpleCards.values()).map((item) => item.sourceId),
+    ...Array.from(galleryCards.values()).map((item) => item.sourceId),
+  ];
+
+  const studioTemplateId = elements.studioTemplateSelect?.value;
+  if (studioTemplateId) {
+    ids.push(getStudioSourceId(studioTemplateId));
+  }
+
+  return Array.from(new Set(ids));
+}
+
+function getItemCounterKey(sourceId) {
+  return `${ITEM_COUNTER_PREFIX}${sanitizeCounterKeyPart(sourceId)}`;
+}
+
+function getSourceIdByItemCounterKey(key) {
+  if (!key.startsWith(ITEM_COUNTER_PREFIX)) {
+    return null;
+  }
+  const normalized = key.slice(ITEM_COUNTER_PREFIX.length);
+
+  if (normalized.includes(":")) {
+    return normalized;
+  }
+
+  for (const sourceId of getTrackedSourceIds()) {
+    if (sanitizeCounterKeyPart(sourceId) === normalized) {
+      return sourceId;
+    }
+  }
+  return null;
+}
+
+function getBadgeBySourceId(sourceId) {
+  if (sourceId.startsWith("simple:")) {
+    const id = sourceId.slice("simple:".length);
+    return simpleCards.get(id)?.usageBadge || null;
+  }
+  if (sourceId.startsWith("gallery:")) {
+    const id = sourceId.slice("gallery:".length);
+    return galleryCards.get(id)?.usageBadge || null;
+  }
+  if (sourceId.startsWith("studio:")) {
+    return elements.studioUsageBadge;
+  }
+  return null;
+}
+
+function updateCardUsageBadge(sourceId) {
+  const countNode = sourceId.startsWith("studio:")
+    ? elements.studioUsageCount
+    : getBadgeBySourceId(sourceId)?.querySelector(".usage-count");
+  if (!countNode) {
+    return;
+  }
+  const count = state.usageCounter.itemTotals[sourceId] || 0;
+
+  countNode.textContent = formatCount(count);
+  animateCountIncrease(countNode, count);
+
+  const badge = getBadgeBySourceId(sourceId);
+  if (!badge) {
+    return;
+  }
+  badge.classList.toggle("offline", state.usageCounter.offline);
+}
+
+function updateAllCardUsageBadges() {
+  simpleCards.forEach((item) => updateCardUsageBadge(item.sourceId));
+  galleryCards.forEach((item) => updateCardUsageBadge(item.sourceId));
+
+  const studioTemplateId = elements.studioTemplateSelect?.value;
+  if (studioTemplateId) {
+    updateCardUsageBadge(getStudioSourceId(studioTemplateId));
+  }
+}
+
+function loadCounterCache() {
+  const cache = readJsonStorage(getCounterStorageKey("ycs-counter-cache"), null);
+  if (cache && typeof cache === "object") {
+    state.usageCounter.totals[COUNTER_KEYS.total] = Number(cache[COUNTER_KEYS.total]) || 0;
+    state.usageCounter.totals[COUNTER_KEYS.download] = Number(cache[COUNTER_KEYS.download]) || 0;
+    state.usageCounter.totals[COUNTER_KEYS.share] = Number(cache[COUNTER_KEYS.share]) || 0;
+  }
+
+  const itemCache = readJsonStorage(getCounterStorageKey("ycs-counter-item-cache"), null);
+  state.usageCounter.itemTotals = itemCache && typeof itemCache === "object" ? itemCache : {};
+
+  const queue = readJsonStorage(getCounterStorageKey("ycs-counter-queue"), []);
+  state.usageCounter.queue = Array.isArray(queue) ? queue.filter((item) => typeof item === "string") : [];
+}
+
+function persistCounterState() {
+  writeJsonStorage(getCounterStorageKey("ycs-counter-cache"), state.usageCounter.totals);
+  writeJsonStorage(getCounterStorageKey("ycs-counter-item-cache"), state.usageCounter.itemTotals);
+  writeJsonStorage(getCounterStorageKey("ycs-counter-queue"), state.usageCounter.queue);
+}
+
+function setCounterOffline(value) {
+  state.usageCounter.offline = value;
+  updateAllCardUsageBadges();
+}
+
+function enqueueCounterKey(key) {
+  state.usageCounter.queue.push(key);
+  if (state.usageCounter.queue.length > COUNTER_QUEUE_MAX) {
+    state.usageCounter.queue = state.usageCounter.queue.slice(state.usageCounter.queue.length - COUNTER_QUEUE_MAX);
+  }
+  persistCounterState();
+  updateAllCardUsageBadges();
+}
+
+function counterUrl(mode, key) {
+  const namespace = encodeURIComponent(state.usageCounter.namespace);
+  const safeKey = encodeURIComponent(key);
+  return `https://api.countapi.xyz/${mode}/${namespace}/${safeKey}`;
+}
+
+async function countApiRequest(mode, key) {
+  const response = await fetch(counterUrl(mode, key), { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error(`CountAPI ${mode} failed`);
+  }
+  const payload = await response.json();
+  return Number(payload?.value) || 0;
+}
+
+async function refreshCountersFromApi() {
+  const sources = getTrackedSourceIds();
+
+  try {
+    await Promise.all(
+      sources.map(async (sourceId) => {
+        const key = getItemCounterKey(sourceId);
+        const value = await countApiRequest("get", key);
+        state.usageCounter.itemTotals[sourceId] = value;
+      }),
+    );
+    state.usageCounter.initialized = true;
+    setCounterOffline(false);
+    persistCounterState();
+    return true;
+  } catch {
+    state.usageCounter.initialized = true;
+    setCounterOffline(true);
+    return false;
+  } finally {
+    updateAllCardUsageBadges();
+  }
+}
+
+async function refreshSingleSourceCounter(sourceId) {
+  try {
+    const key = getItemCounterKey(sourceId);
+    const value = await countApiRequest("get", key);
+    state.usageCounter.itemTotals[sourceId] = value;
+    setCounterOffline(false);
+    persistCounterState();
+  } catch {
+    setCounterOffline(true);
+  } finally {
+    updateCardUsageBadge(sourceId);
+  }
+}
+
+function applyCounterValue(key, value) {
+  if (key.startsWith(ITEM_COUNTER_PREFIX)) {
+    const sourceId = getSourceIdByItemCounterKey(key);
+    if (sourceId) {
+      state.usageCounter.itemTotals[sourceId] = value;
+      updateCardUsageBadge(sourceId);
+    }
+    return;
+  }
+  state.usageCounter.totals[key] = value;
+}
+
+async function hitCounterKey(key) {
+  try {
+    const value = await countApiRequest("hit", key);
+    applyCounterValue(key, value);
+    state.usageCounter.initialized = true;
+    setCounterOffline(false);
+    persistCounterState();
+    return true;
+  } catch {
+    if (key.startsWith(ITEM_COUNTER_PREFIX)) {
+      const sourceId = getSourceIdByItemCounterKey(key);
+      if (sourceId) {
+        state.usageCounter.itemTotals[sourceId] = (state.usageCounter.itemTotals[sourceId] || 0) + 1;
+      }
+    }
+    enqueueCounterKey(key);
+    setCounterOffline(true);
+    return false;
+  }
+}
+
+async function flushCounterQueue() {
+  if (!state.usageCounter.queue.length) {
+    return true;
+  }
+
+  const pending = [...state.usageCounter.queue];
+  state.usageCounter.queue = [];
+
+  for (let index = 0; index < pending.length && index < COUNTER_FLUSH_LIMIT; index += 1) {
+    const key = pending[index];
+    try {
+      const value = await countApiRequest("hit", key);
+      applyCounterValue(key, value);
+    } catch {
+      const remaining = pending.slice(index);
+      state.usageCounter.queue = [...remaining, ...state.usageCounter.queue];
+      persistCounterState();
+      setCounterOffline(true);
+      return false;
+    }
+  }
+
+  if (pending.length > COUNTER_FLUSH_LIMIT) {
+    state.usageCounter.queue = [...pending.slice(COUNTER_FLUSH_LIMIT), ...state.usageCounter.queue];
+  }
+
+  state.usageCounter.initialized = true;
+  setCounterOffline(false);
+  persistCounterState();
+  updateAllCardUsageBadges();
+  return true;
+}
+
+function isCounterEventAllowed(action, sourceId) {
+  const key = `${action}:${sourceId}`;
+  const now = Date.now();
+  const lastTime = state.usageCounter.cooldown.get(key) || 0;
+  if (now - lastTime < COUNTER_COOLDOWN_MS) {
+    return false;
+  }
+  state.usageCounter.cooldown.set(key, now);
+  return true;
+}
+
+async function trackUsage(action, sourceId) {
+  if (!state.appConfig.counterEnabled) {
+    return;
+  }
+  if (!state.usageCounter.namespace) {
+    return;
+  }
+  if (!isCounterEventAllowed(action, sourceId)) {
+    return;
+  }
+
+  const actionKey = action === "share" ? COUNTER_KEYS.share : COUNTER_KEYS.download;
+  const itemKey = getItemCounterKey(sourceId);
+  await Promise.allSettled([
+    hitCounterKey(COUNTER_KEYS.total),
+    hitCounterKey(actionKey),
+    hitCounterKey(itemKey),
+  ]);
+
+  if (!state.usageCounter.offline && state.usageCounter.queue.length) {
+    await flushCounterQueue();
+  }
+
+  updateAllCardUsageBadges();
+}
+
+async function setupUsageCounter() {
+  if (!state.appConfig.counterEnabled) {
+    return;
+  }
+  state.usageCounter.namespace = getCounterNamespace();
+  loadCounterCache();
+  updateAllCardUsageBadges();
+
+  await refreshCountersFromApi();
+  if (state.usageCounter.queue.length) {
+    await flushCounterQueue();
+  }
+
+  window.addEventListener("online", () => {
+    flushCounterQueue();
+    refreshCountersFromApi();
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && state.usageCounter.queue.length) {
+      flushCounterQueue();
+    }
+  });
+}
+
 function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -494,7 +1001,7 @@ function downloadBlob(blob, filename) {
 async function shareBlob(blob, filename) {
   if (!blob) {
     alert("Gagal memproses gambar.");
-    return;
+    return false;
   }
 
   const file = new File([blob], filename, { type: "image/png" });
@@ -502,13 +1009,22 @@ async function shareBlob(blob, filename) {
   if (navigator.canShare && navigator.canShare(data)) {
     try {
       await navigator.share(data);
+      return true;
     } catch {
       alert("Proses share dibatalkan atau gagal.");
+      return false;
     }
-    return;
   }
 
   alert("Fitur share belum didukung perangkat ini.");
+  return false;
+}
+
+function setCanvasShellLoaded(shell, loaded) {
+  if (!shell) {
+    return;
+  }
+  shell.classList.toggle("is-loaded", loaded);
 }
 
 function initSimpleCards() {
@@ -516,12 +1032,24 @@ function initSimpleCards() {
   elements.simplePreviewList.innerHTML = "";
 
   templates.forEach((template) => {
+    const sourceId = getSimpleSourceId(template.id);
     const card = document.createElement("article");
     card.className = "simple-card";
     card.innerHTML = `
-      <h3>${template.title}</h3>
+      <div class="card-head">
+        <h3>${template.title}</h3>
+        <div class="usage-pill usage-pill-frame" title="Total dipakai">
+          <span class="usage-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 18h16v2H2V4h2v14zm2-4 4-4 3 3 5-5 1.4 1.4-6.4 6.4-3-3-2.6 2.6L6 14z"/></svg>
+          </span>
+          <span class="usage-count">0</span>
+        </div>
+      </div>
       <p>${template.description}</p>
-      <canvas class="simple-canvas"></canvas>
+      <div class="canvas-shell" style="aspect-ratio: 1080 / 1350;">
+        <div class="canvas-skeleton" aria-hidden="true"></div>
+        <canvas class="simple-canvas"></canvas>
+      </div>
       <div class="simple-actions">
         <button type="button" class="small-btn">Download</button>
         <button type="button" class="small-btn ghost">Share</button>
@@ -530,9 +1058,12 @@ function initSimpleCards() {
 
     elements.simplePreviewList.appendChild(card);
     const canvas = card.querySelector("canvas");
+    const canvasShell = card.querySelector(".canvas-shell");
+    const usageBadge = card.querySelector(".usage-pill");
     const [downloadButton, shareButton] = card.querySelectorAll("button");
 
-    simpleCards.set(template.id, { template, canvas });
+    simpleCards.set(template.id, { template, canvas, canvasShell, sourceId, usageBadge });
+    updateCardUsageBadge(sourceId);
     downloadButton.addEventListener("click", () => handleSimpleDownload(template.id));
     shareButton.addEventListener("click", () => handleSimpleShare(template.id));
   });
@@ -551,12 +1082,24 @@ function initGalleryCards() {
   }
 
   greetingCards.forEach((item) => {
+    const sourceId = getGallerySourceId(item.id);
     const card = document.createElement("article");
     card.className = "simple-card";
     card.innerHTML = `
-      <h3>${item.title}</h3>
+      <div class="card-head">
+        <h3>${item.title}</h3>
+        <div class="usage-pill usage-pill-gallery" title="Total dipakai">
+          <span class="usage-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 18h16v2H2V4h2v14zm2-4 4-4 3 3 5-5 1.4 1.4-6.4 6.4-3-3-2.6 2.6L6 14z"/></svg>
+          </span>
+          <span class="usage-count">0</span>
+        </div>
+      </div>
       <p>${item.description}</p>
-      <canvas class="simple-canvas"></canvas>
+      <div class="canvas-shell" style="aspect-ratio: 4 / 5;">
+        <div class="canvas-skeleton" aria-hidden="true"></div>
+        <canvas class="simple-canvas"></canvas>
+      </div>
       <div class="simple-actions">
         <button type="button" class="small-btn">Download</button>
         <button type="button" class="small-btn ghost">Share</button>
@@ -565,9 +1108,12 @@ function initGalleryCards() {
 
     elements.galleryPreviewList.appendChild(card);
     const canvas = card.querySelector("canvas");
+    const canvasShell = card.querySelector(".canvas-shell");
+    const usageBadge = card.querySelector(".usage-pill");
     const [downloadButton, shareButton] = card.querySelectorAll("button");
 
-    galleryCards.set(item.id, { card: item, canvas });
+    galleryCards.set(item.id, { card: item, canvas, canvasShell, sourceId, usageBadge });
+    updateCardUsageBadge(sourceId);
     downloadButton.addEventListener("click", () => handleGreetingDownload(item.id));
     shareButton.addEventListener("click", () => handleGreetingShare(item.id));
   });
@@ -580,7 +1126,10 @@ async function renderSimplePreviews() {
   const previewHeight = Math.round((size.height / size.width) * previewWidth);
   const name = elements.simpleNameInput.value.trim() || "Nama Antum";
 
-  const jobs = Array.from(simpleCards.values()).map(async ({ template, canvas }) => {
+  const jobs = Array.from(simpleCards.values()).map(async ({ template, canvas, canvasShell }) => {
+    if (canvasShell) {
+      canvasShell.style.aspectRatio = `${size.width} / ${size.height}`;
+    }
     await renderCardToCanvas({
       canvas,
       imagePath: template.imagePath,
@@ -592,6 +1141,7 @@ async function renderSimplePreviews() {
       mainColor: template.textStyle?.mainColor,
       autoShrink: true,
     });
+    setCanvasShellLoaded(canvasShell, true);
   });
 
   await Promise.all(jobs);
@@ -604,11 +1154,15 @@ async function renderGalleryPreviews() {
   const token = ++renderState.galleryToken;
   const previewWidth = 540;
 
-  const jobs = Array.from(galleryCards.values()).map(async ({ card, canvas }) => {
+  const jobs = Array.from(galleryCards.values()).map(async ({ card, canvas, canvasShell }) => {
     const image = await loadImage(card.imagePath);
     const ratio = image.height / image.width;
     const previewHeight = Math.round(previewWidth * ratio);
+    if (canvasShell) {
+      canvasShell.style.aspectRatio = `${previewWidth} / ${previewHeight}`;
+    }
     await renderImageOnly(canvas, card.imagePath, previewWidth, previewHeight);
+    setCanvasShellLoaded(canvasShell, true);
   });
 
   await Promise.all(jobs);
@@ -626,8 +1180,15 @@ async function renderStudio() {
   const size = getSizeById(elements.studioSizeSelect.value);
   const font = getFontById(elements.studioFontSelect.value);
   const preset = getStudioPreset();
+  const imageChanged = preset.imagePath !== state.studioLastImagePath || !state.studioPreviewReady;
 
   elements.studioMeta.textContent = `${size.width} x ${size.height} • ${preset.title}`;
+  if (elements.studioCanvasShell) {
+    elements.studioCanvasShell.style.aspectRatio = `${size.width} / ${size.height}`;
+  }
+  if (imageChanged) {
+    setCanvasShellLoaded(elements.studioCanvasShell, false);
+  }
 
   const result = await renderCardToCanvas({
     canvas: elements.studioCanvas,
@@ -648,6 +1209,9 @@ async function renderStudio() {
   }
 
   state.studioLastTextBounds = result.textBounds;
+  state.studioLastImagePath = preset.imagePath;
+  state.studioPreviewReady = true;
+  setCanvasShellLoaded(elements.studioCanvasShell, true);
   updatePresetOutput(preset);
 }
 
@@ -716,13 +1280,17 @@ async function handleSimpleDownload(templateId) {
     return;
   }
   const size = getSizeById(elements.simpleSizeSelect.value);
-  downloadBlob(blob, `ycs-${templateId}-${size.width}x${size.height}.png`);
+  downloadBlob(blob, `${getFileNamePrefix()}-${templateId}-${size.width}x${size.height}.png`);
+  trackUsage("download", `simple:${templateId}`);
 }
 
 async function handleSimpleShare(templateId) {
   const blob = await renderSimpleBlob(templateId);
   const size = getSizeById(elements.simpleSizeSelect.value);
-  await shareBlob(blob, `ycs-${templateId}-${size.width}x${size.height}.png`);
+  const shared = await shareBlob(blob, `${getFileNamePrefix()}-${templateId}-${size.width}x${size.height}.png`);
+  if (shared) {
+    trackUsage("share", `simple:${templateId}`);
+  }
 }
 
 async function handleGreetingDownload(cardId) {
@@ -731,7 +1299,8 @@ async function handleGreetingDownload(cardId) {
     alert("Kartu tidak ditemukan.");
     return;
   }
-  downloadBlob(blob, `ycs-greeting-${cardId}.png`);
+  downloadBlob(blob, `${getFileNamePrefix()}-greeting-${cardId}.png`);
+  trackUsage("download", `gallery:${cardId}`);
 }
 
 async function handleGreetingShare(cardId) {
@@ -740,7 +1309,10 @@ async function handleGreetingShare(cardId) {
     alert("Kartu tidak ditemukan.");
     return;
   }
-  await shareBlob(blob, `ycs-greeting-${cardId}.png`);
+  const shared = await shareBlob(blob, `${getFileNamePrefix()}-greeting-${cardId}.png`);
+  if (shared) {
+    trackUsage("share", `gallery:${cardId}`);
+  }
 }
 
 function pointInRect(x, y, rect) {
@@ -891,7 +1463,6 @@ function populateControls() {
   elements.simpleSizeSelect.value = OUTPUT_SIZES[0].id;
   elements.studioSizeSelect.value = OUTPUT_SIZES[0].id;
   elements.studioTemplateSelect.value = templates[0]?.id ?? "";
-  elements.studioAutoFontToggle.checked = true;
   elements.studioFontSelect.value = getSuggestedFontId(elements.studioTemplateSelect.value);
   elements.simpleNameInput.value = "Nama Antum";
   elements.studioNameInput.value = "Nama Antum";
@@ -903,6 +1474,12 @@ async function bootstrap() {
   const data = await loadTemplateData();
   templates = data.twibbonTemplates;
   greetingCards = data.greetingCards;
+  state.appConfig = {
+    ...DEFAULT_APP_CONFIG,
+    ...(data.appConfig || {}),
+  };
+  state.usageCounter.namespace = state.appConfig.counterNamespace;
+  applyAppConfig();
 
   populateControls();
   initSimpleCards();
@@ -911,6 +1488,7 @@ async function bootstrap() {
   setupFab();
   setupResponsiveStudioLayout();
   setupStudioMobileHint();
+  await setupUsageCounter();
 
   window.addEventListener("resize", debounce(() => {
     setupResponsiveStudioLayout();
@@ -930,15 +1508,10 @@ async function bootstrap() {
 
   elements.studioTemplateSelect.addEventListener("change", () => {
     setPresetControlsFromTemplate(getTemplateById(elements.studioTemplateSelect.value));
-    if (isAutoFontEnabled()) {
-      elements.studioFontSelect.value = getSuggestedFontId(elements.studioTemplateSelect.value);
-    }
-    scheduleStudioRender();
-  });
-  elements.studioAutoFontToggle.addEventListener("change", () => {
-    if (isAutoFontEnabled()) {
-      elements.studioFontSelect.value = getSuggestedFontId(elements.studioTemplateSelect.value);
-    }
+    elements.studioFontSelect.value = getSuggestedFontId(elements.studioTemplateSelect.value);
+    const studioSourceId = getStudioSourceId(elements.studioTemplateSelect.value);
+    updateCardUsageBadge(studioSourceId);
+    refreshSingleSourceCounter(studioSourceId);
     scheduleStudioRender();
   });
   elements.studioNameInput.addEventListener("input", scheduleStudioRender);
@@ -989,7 +1562,8 @@ async function bootstrap() {
     }
     const size = getSizeById(elements.studioSizeSelect.value);
     const template = getStudioPreset();
-    downloadBlob(blob, `ycs-studio-${template.id}-${size.width}x${size.height}.png`);
+    downloadBlob(blob, `${getFileNamePrefix()}-studio-${template.id}-${size.width}x${size.height}.png`);
+    trackUsage("download", `studio:${template.id}`);
   });
 
   elements.studioShareButton.addEventListener("click", async () => {
@@ -999,7 +1573,10 @@ async function bootstrap() {
     }
     const size = getSizeById(elements.studioSizeSelect.value);
     const template = getStudioPreset();
-    await shareBlob(blob, `ycs-studio-${template.id}-${size.width}x${size.height}.png`);
+    const shared = await shareBlob(blob, `${getFileNamePrefix()}-studio-${template.id}-${size.width}x${size.height}.png`);
+    if (shared) {
+      trackUsage("share", `studio:${template.id}`);
+    }
   });
 
   elements.studioUploadInput.addEventListener("change", (event) => {
@@ -1043,9 +1620,10 @@ async function bootstrap() {
       templates.map((item) => ({ value: item.id, label: item.title })),
     );
     elements.studioTemplateSelect.value = template.id;
-    if (isAutoFontEnabled()) {
-      elements.studioFontSelect.value = FONT_OPTIONS[0].id;
-    }
+    elements.studioFontSelect.value = FONT_OPTIONS[0].id;
+    const studioSourceId = getStudioSourceId(template.id);
+    updateCardUsageBadge(studioSourceId);
+    refreshSingleSourceCounter(studioSourceId);
     setPresetControlsFromTemplate(template);
     scheduleStudioRender();
   });

@@ -120,6 +120,26 @@ export const DEFAULT_TEMPLATE_PRESETS = [
     },
   },
   {
+    id: "tk-cahaya-sunnah-frame",
+    title: "TK Cahaya Sunnah Frame",
+    description: "Template unit TK Cahaya Sunnah",
+    imagePath: "/templates/ycs-frame/twibbon-tk-cahaya-sunnah.png",
+    textBox: {
+      x: 0.5,
+      y: 0.53,
+      maxWidth: 0.58,
+      maxLines: 2,
+      minFont: 20,
+      maxFont: 40,
+      lineHeight: 1.04,
+      align: "center",
+    },
+    textStyle: {
+      mainColor: "#ffffff",
+      shadowColor: "rgba(0, 0, 0, 0.35)",
+    },
+  },
+  {
     id: "stq-syathiby-frame",
     title: "STQ Syathiby Frame",
     description: "Template unit STQ Syathiby",
@@ -142,6 +162,33 @@ export const DEFAULT_TEMPLATE_PRESETS = [
 ];
 
 export const DEFAULT_GREETING_CARDS = [];
+export const DEFAULT_APP_CONFIG = {
+  counterNamespace: "ucapan-rodja-co-id",
+  counterEnabled: true,
+  fileNamePrefix: "ycs",
+  pageTitle: "YCS Eid Greeting Card",
+  heroEyebrow: "YCS Eid Greeting Card",
+  heroTitle: "Yayasan Cahaya Sunnah",
+  heroDescription: "Platform kartu ucapan id resmi di bawah naungan Yayasan Cahaya Sunnah.",
+  metaDescription: "Platform kartu ucapan id resmi Yayasan Cahaya Sunnah untuk membuat dan membagikan kartu ucapan dengan tampilan rapi, cepat, dan siap pakai.",
+  canonicalUrl: "https://ucapan.rodja.co.id/",
+  tabLabelSimple: "Simple",
+  tabLabelStudio: "Studio",
+  tabLabelGallery: "Gallery",
+  simpleSectionTitle: "Simple",
+  simpleSectionDescription: "Isi nama sekali, lalu seluruh template YCS langsung muncul dan siap dibagikan.",
+  simpleSectionHelper: "Preview otomatis menyesuaikan setting placeholder tiap template.",
+  studioSectionTitle: "Studio",
+  studioSectionDescription: "Atur detail teks, geser posisi, dan upload template pribadi untuk kebutuhan personal.",
+  gallerySectionTitle: "Gallery",
+  gallerySectionDescription: "Kumpulan kartu ucapan siap pakai. Tidak perlu edit teks, langsung download atau share.",
+  footerCreditPrefix: "Made with",
+  footerCreditBy: "by",
+  footerCreditLinkText: "IT Syathiby 2024",
+  footerCreditLinkHref: "https://syathiby.github.io/",
+  footerSourceLinkText: "Open Source",
+  footerSourceLinkHref: "https://github.com/CreatorB/twibbon-rodja",
+};
 
 export const OUTPUT_SIZES = [
   { id: "1080x1350", label: "Portrait 4:5", width: 1080, height: 1350 },
@@ -236,6 +283,71 @@ function dedupeTemplateIds(items) {
   });
 }
 
+function normalizeAppConfig(raw) {
+  const counterNamespace = String(raw?.counterNamespace || DEFAULT_APP_CONFIG.counterNamespace)
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  const fileNamePrefix = String(raw?.fileNamePrefix || DEFAULT_APP_CONFIG.fileNamePrefix)
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  const pageTitle = String(raw?.pageTitle || DEFAULT_APP_CONFIG.pageTitle).trim();
+  const heroEyebrow = String(raw?.heroEyebrow || DEFAULT_APP_CONFIG.heroEyebrow).trim();
+  const heroTitle = String(raw?.heroTitle || DEFAULT_APP_CONFIG.heroTitle).trim();
+  const heroDescription = String(raw?.heroDescription || DEFAULT_APP_CONFIG.heroDescription).trim();
+  const metaDescription = String(raw?.metaDescription || DEFAULT_APP_CONFIG.metaDescription).trim();
+  const canonicalUrl = String(raw?.canonicalUrl || DEFAULT_APP_CONFIG.canonicalUrl).trim();
+  const tabLabelSimple = String(raw?.tabLabelSimple || DEFAULT_APP_CONFIG.tabLabelSimple).trim();
+  const tabLabelStudio = String(raw?.tabLabelStudio || DEFAULT_APP_CONFIG.tabLabelStudio).trim();
+  const tabLabelGallery = String(raw?.tabLabelGallery || DEFAULT_APP_CONFIG.tabLabelGallery).trim();
+  const simpleSectionTitle = String(raw?.simpleSectionTitle || DEFAULT_APP_CONFIG.simpleSectionTitle).trim();
+  const simpleSectionDescription = String(raw?.simpleSectionDescription || DEFAULT_APP_CONFIG.simpleSectionDescription).trim();
+  const simpleSectionHelper = String(raw?.simpleSectionHelper || DEFAULT_APP_CONFIG.simpleSectionHelper).trim();
+  const studioSectionTitle = String(raw?.studioSectionTitle || DEFAULT_APP_CONFIG.studioSectionTitle).trim();
+  const studioSectionDescription = String(raw?.studioSectionDescription || DEFAULT_APP_CONFIG.studioSectionDescription).trim();
+  const gallerySectionTitle = String(raw?.gallerySectionTitle || DEFAULT_APP_CONFIG.gallerySectionTitle).trim();
+  const gallerySectionDescription = String(raw?.gallerySectionDescription || DEFAULT_APP_CONFIG.gallerySectionDescription).trim();
+  const footerCreditPrefix = String(raw?.footerCreditPrefix || DEFAULT_APP_CONFIG.footerCreditPrefix).trim();
+  const footerCreditBy = String(raw?.footerCreditBy || DEFAULT_APP_CONFIG.footerCreditBy).trim();
+  const footerCreditLinkText = String(raw?.footerCreditLinkText || DEFAULT_APP_CONFIG.footerCreditLinkText).trim();
+  const footerCreditLinkHref = String(raw?.footerCreditLinkHref || DEFAULT_APP_CONFIG.footerCreditLinkHref).trim();
+  const footerSourceLinkText = String(raw?.footerSourceLinkText || DEFAULT_APP_CONFIG.footerSourceLinkText).trim();
+  const footerSourceLinkHref = String(raw?.footerSourceLinkHref || DEFAULT_APP_CONFIG.footerSourceLinkHref).trim();
+
+  return {
+    counterNamespace: counterNamespace || DEFAULT_APP_CONFIG.counterNamespace,
+    counterEnabled: raw?.counterEnabled !== false,
+    fileNamePrefix: fileNamePrefix || DEFAULT_APP_CONFIG.fileNamePrefix,
+    pageTitle: pageTitle || DEFAULT_APP_CONFIG.pageTitle,
+    heroEyebrow: heroEyebrow || DEFAULT_APP_CONFIG.heroEyebrow,
+    heroTitle: heroTitle || DEFAULT_APP_CONFIG.heroTitle,
+    heroDescription: heroDescription || DEFAULT_APP_CONFIG.heroDescription,
+    metaDescription: metaDescription || DEFAULT_APP_CONFIG.metaDescription,
+    canonicalUrl: canonicalUrl || DEFAULT_APP_CONFIG.canonicalUrl,
+    tabLabelSimple: tabLabelSimple || DEFAULT_APP_CONFIG.tabLabelSimple,
+    tabLabelStudio: tabLabelStudio || DEFAULT_APP_CONFIG.tabLabelStudio,
+    tabLabelGallery: tabLabelGallery || DEFAULT_APP_CONFIG.tabLabelGallery,
+    simpleSectionTitle: simpleSectionTitle || DEFAULT_APP_CONFIG.simpleSectionTitle,
+    simpleSectionDescription: simpleSectionDescription || DEFAULT_APP_CONFIG.simpleSectionDescription,
+    simpleSectionHelper: simpleSectionHelper || DEFAULT_APP_CONFIG.simpleSectionHelper,
+    studioSectionTitle: studioSectionTitle || DEFAULT_APP_CONFIG.studioSectionTitle,
+    studioSectionDescription: studioSectionDescription || DEFAULT_APP_CONFIG.studioSectionDescription,
+    gallerySectionTitle: gallerySectionTitle || DEFAULT_APP_CONFIG.gallerySectionTitle,
+    gallerySectionDescription: gallerySectionDescription || DEFAULT_APP_CONFIG.gallerySectionDescription,
+    footerCreditPrefix: footerCreditPrefix || DEFAULT_APP_CONFIG.footerCreditPrefix,
+    footerCreditBy: footerCreditBy || DEFAULT_APP_CONFIG.footerCreditBy,
+    footerCreditLinkText: footerCreditLinkText || DEFAULT_APP_CONFIG.footerCreditLinkText,
+    footerCreditLinkHref: footerCreditLinkHref || DEFAULT_APP_CONFIG.footerCreditLinkHref,
+    footerSourceLinkText: footerSourceLinkText || DEFAULT_APP_CONFIG.footerSourceLinkText,
+    footerSourceLinkHref: footerSourceLinkHref || DEFAULT_APP_CONFIG.footerSourceLinkHref,
+  };
+}
+
 export async function loadTemplateData() {
   try {
     const response = await fetch("/templates/manifest.json", { cache: "no-store" });
@@ -243,6 +355,7 @@ export async function loadTemplateData() {
       return {
         twibbonTemplates: DEFAULT_TEMPLATE_PRESETS,
         greetingCards: DEFAULT_GREETING_CARDS,
+        appConfig: DEFAULT_APP_CONFIG,
       };
     }
 
@@ -267,14 +380,18 @@ export async function loadTemplateData() {
       ? dedupeTemplateIds(greetingRaw.map((item, index) => normalizeGreetingCard(item, index)))
       : DEFAULT_GREETING_CARDS;
 
+    const appConfig = normalizeAppConfig(payload?.appConfig);
+
     return {
       twibbonTemplates,
       greetingCards,
+      appConfig,
     };
   } catch {
     return {
       twibbonTemplates: DEFAULT_TEMPLATE_PRESETS,
       greetingCards: DEFAULT_GREETING_CARDS,
+      appConfig: DEFAULT_APP_CONFIG,
     };
   }
 }

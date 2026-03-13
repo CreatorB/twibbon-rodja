@@ -56,11 +56,11 @@ Contoh:
     "counterNamespace": "ucapan-rodja-co-id",
     "counterEnabled": true,
     "fileNamePrefix": "ycs",
-    "pageTitle": "YCS Twibbon",
-    "heroEyebrow": "YCS Twibbon",
-    "heroTitle": "Yayasan Cahaya Sunnah Twibbon",
-    "heroDescription": "Platform kartu ucapan resmi di bawah naungan Yayasan Cahaya Sunnah.",
-    "metaDescription": "Platform kartu ucapan resmi Yayasan Cahaya Sunnah untuk membuat dan membagikan kartu ucapan dengan tampilan rapi, cepat, dan siap pakai.",
+    "pageTitle": "YCS Eid Greeting Card",
+    "heroEyebrow": "YCS Eid Greeting Card",
+    "heroTitle": "Yayasan Cahaya Sunnah",
+    "heroDescription": "Platform kartu ucapan id resmi di bawah naungan Yayasan Cahaya Sunnah.",
+    "metaDescription": "Platform kartu ucapan id resmi Yayasan Cahaya Sunnah untuk membuat dan membagikan kartu ucapan dengan tampilan rapi, cepat, dan siap pakai.",
     "canonicalUrl": "https://ucapan.rodja.co.id/",
     "tabLabelSimple": "Simple",
     "tabLabelStudio": "Studio",
@@ -111,11 +111,11 @@ Preset A - Production Rodja (saat ini):
     "counterNamespace": "ucapan-rodja-co-id",
     "counterEnabled": true,
     "fileNamePrefix": "ycs",
-    "pageTitle": "YCS Twibbon",
-    "heroEyebrow": "YCS Twibbon",
-    "heroTitle": "Yayasan Cahaya Sunnah Twibbon",
-    "heroDescription": "Platform kartu ucapan resmi di bawah naungan Yayasan Cahaya Sunnah.",
-    "metaDescription": "Platform kartu ucapan resmi Yayasan Cahaya Sunnah untuk membuat dan membagikan kartu ucapan dengan tampilan rapi, cepat, dan siap pakai.",
+    "pageTitle": "YCS Eid Greeting Card",
+    "heroEyebrow": "YCS Eid Greeting Card",
+    "heroTitle": "Yayasan Cahaya Sunnah",
+    "heroDescription": "Platform kartu ucapan id resmi di bawah naungan Yayasan Cahaya Sunnah.",
+    "metaDescription": "Platform kartu ucapan id resmi Yayasan Cahaya Sunnah untuk membuat dan membagikan kartu ucapan dengan tampilan rapi, cepat, dan siap pakai.",
     "canonicalUrl": "https://ucapan.rodja.co.id/",
     "tabLabelSimple": "Simple",
     "tabLabelStudio": "Studio",
@@ -147,7 +147,7 @@ Preset B - Generic Instansi Lain (template):
     "pageTitle": "Ucapan Instansi",
     "heroEyebrow": "Ucapan Resmi",
     "heroTitle": "Twibbon Instansi",
-    "heroDescription": "Platform kartu ucapan resmi instansi.",
+    "heroDescription": "Platform kartu ucapan id resmi instansi.",
     "metaDescription": "Generator twibbon resmi untuk membuat dan membagikan kartu ucapan.",
     "canonicalUrl": "https://contoh-domain.id/",
     "tabLabelSimple": "Simple",
@@ -178,7 +178,7 @@ Langkah cepat migrasi domain lain:
 
 ## Struktur Utama
 ```txt
-twibbon-rodja/
+ycs-eid-greeting-card/
   index.html
   public/
     icon-32.png
@@ -315,7 +315,7 @@ Jika targetnya langsung live dan server sering OOM saat build, gunakan urutan in
 
 ```sh
 # lokal
-cd D:/IT/HSN/syathiby/ycs/twibbon-rodja
+cd D:/IT/HSN/syathiby/ycs/ycs-eid-greeting-card
 git checkout dev
 git pull origin dev
 npm install
@@ -363,7 +363,7 @@ Catatan:
 ### Metode B: Build di Lokal + Upload ke Hosting (disarankan)
 ```sh
 # di lokal
-cd D:/IT/HSN/syathiby/ycs/twibbon-rodja
+cd D:/IT/HSN/syathiby/ycs/ycs-eid-greeting-card
 git checkout dev
 git pull origin dev
 npm install

@@ -120,6 +120,26 @@ export const DEFAULT_TEMPLATE_PRESETS = [
     },
   },
   {
+    id: "tk-cahaya-sunnah-frame",
+    title: "TK Cahaya Sunnah Frame",
+    description: "Template unit TK Cahaya Sunnah",
+    imagePath: "/templates/ycs-frame/twibbon-tk-cahaya-sunnah.png",
+    textBox: {
+      x: 0.5,
+      y: 0.53,
+      maxWidth: 0.58,
+      maxLines: 2,
+      minFont: 20,
+      maxFont: 40,
+      lineHeight: 1.04,
+      align: "center",
+    },
+    textStyle: {
+      mainColor: "#ffffff",
+      shadowColor: "rgba(0, 0, 0, 0.35)",
+    },
+  },
+  {
     id: "stq-syathiby-frame",
     title: "STQ Syathiby Frame",
     description: "Template unit STQ Syathiby",

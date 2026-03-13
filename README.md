@@ -19,6 +19,9 @@ Web app generator kartu ucapan berbasis Vite dengan 3 tab:
 - Tidak ada edit teks atau watermark.
 - Card siap pakai untuk Download atau Share langsung.
 
+## Changelog
+- Riwayat update tersedia di `CHANGELOG.md`.
+
 ## Stack
 - Vite
 - HTML

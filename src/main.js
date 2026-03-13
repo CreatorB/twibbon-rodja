@@ -153,6 +153,7 @@ function getSuggestedFontId(templateId) {
     "albarkah-frame": "cormorant",
     "pkbm-cahaya-sunnah-frame": "playfair",
     "sdit-cahaya-sunnah-frame": "playfair",
+    "tk-cahaya-sunnah-frame": "playfair",
     "stq-syathiby-frame": "instrument-serif",
   };
 

@@ -2,7 +2,7 @@
 
 Semua perubahan penting pada project ini dicatat di file ini.
 
-## [Unreleased]
+## [1.0.2] - 2026-03-14
 
 ### Changed
 - Penyesuaian template TK Cahaya Sunnah: warna teks nama diubah menjadi putih dengan bayangan gelap agar kontras meningkat.
@@ -11,8 +11,11 @@ Semua perubahan penting pada project ini dicatat di file ini.
 - Header utama diubah dari "Yayasan Cahaya Sunnah Twibbon" menjadi "Yayasan Cahaya Sunnah".
 - Rebranding level package: nama package npm diubah dari "twibbon-rodja" menjadi "ycs-eid-greeting-card" dan disinkronkan ke lockfile.
 - Penyesuaian copywriting: frasa "Platform kartu ucapan" diperbarui menjadi "Platform kartu ucapan id" pada hero description, meta description, dan dokumentasi terkait.
+- Preset Helper di Studio sekarang memiliki dropdown preset teks berbasis frame dari manifest, sehingga placeholder bisa mengikuti frame lain seperti layout teks rata kiri tanpa mengganti gambar frame aktif.
+- Perilaku fitting teks di Studio disamakan dengan mode Simple: ukuran font yang dipilih kini otomatis mengecil bila perlu agar nama tetap muat di area preset dan tidak terpotong hanya karena batas baris.
+- Default mode Studio kini mengikuti mode Simple secara persis untuk font, warna teks, ukuran awal, offset, dan auto-fit; user tetap bisa menyesuaikan semuanya secara manual setelahnya.
 
-## [1.1.0] - 2026-03-13
+## [1.0.1] - 2026-03-13
 
 ### Added
 - Tambah template baru TK Cahaya Sunnah dengan id `tk-cahaya-sunnah-frame` di `public/templates/manifest.json`.

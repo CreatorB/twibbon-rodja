@@ -2,6 +2,7 @@ import "./style.css";
 import { DEFAULT_APP_CONFIG, DEFAULT_TEMPLATE_PRESETS, FONT_OPTIONS, OUTPUT_SIZES, loadTemplateData } from "./templates.js";
 
 const imageCache = new Map();
+const PRESET_HELPER_FOLLOW_STUDIO = "__studio__";
 
 const elements = {
   tabButtons: Array.from(document.querySelectorAll(".tab-button")),
@@ -54,6 +55,7 @@ const elements = {
   studioMobileHint: document.getElementById("studioMobileHint"),
 
   presetXRange: document.getElementById("presetXRange"),
+  presetTemplateSelect: document.getElementById("presetTemplateSelect"),
   presetYRange: document.getElementById("presetYRange"),
   presetWidthRange: document.getElementById("presetWidthRange"),
   presetLinesRange: document.getElementById("presetLinesRange"),
@@ -164,6 +166,14 @@ function parsePercentRange(element) {
   return Number(element.value) / 100;
 }
 
+function getPresetHelperBaseTemplate() {
+  const presetTemplateId = elements.presetTemplateSelect?.value;
+  if (presetTemplateId && presetTemplateId !== PRESET_HELPER_FOLLOW_STUDIO) {
+    return getTemplateById(presetTemplateId);
+  }
+  return getTemplateById(elements.studioTemplateSelect.value);
+}
+
 function readPresetControls(baseTemplate) {
   const maxFont = Number(elements.presetMaxFontRange.value);
   const minFont = Math.min(Number(elements.presetMinFontRange.value), maxFont);
@@ -224,6 +234,35 @@ function updatePresetOutput(template) {
     null,
     2,
   );
+}
+
+function buildPresetHelperOptions() {
+  return [
+    { value: PRESET_HELPER_FOLLOW_STUDIO, label: "Ikuti template aktif" },
+    ...templates
+      .filter((template) => template.id !== "uploaded-template")
+      .map((template) => ({
+        value: template.id,
+        label: template.title,
+      })),
+  ];
+}
+
+function populatePresetHelperSelect() {
+  const currentValue = elements.presetTemplateSelect.value;
+  const options = buildPresetHelperOptions();
+  buildSelectOptions(elements.presetTemplateSelect, options);
+
+  const hasCurrent = options.some((option) => option.value === currentValue);
+  elements.presetTemplateSelect.value = hasCurrent ? currentValue : PRESET_HELPER_FOLLOW_STUDIO;
+}
+
+function applyStudioDefaults(template) {
+  elements.studioFontSelect.value = FONT_OPTIONS[0].id;
+  elements.studioColorInput.value = template.textStyle?.mainColor || "#f8e08b";
+  elements.studioFontSizeRange.value = String(template.textBox.maxFont);
+  elements.studioOffsetXRange.value = "0";
+  elements.studioOffsetYRange.value = "0";
 }
 
 async function loadImage(url) {
@@ -322,12 +361,26 @@ function fitTextToBox(ctx, text, box, fontFamily, forcedFontSize = null, options
   const fitWidth = box.maxWidth * safePadding;
 
   if (forcedFontSize) {
-    ctx.font = `700 ${forcedFontSize}px ${fontFamily}`;
-    const lines = wrapText(ctx, text, fitWidth);
+    let size = Math.max(hardMin, forcedFontSize);
+    while (size >= hardMin) {
+      ctx.font = `700 ${size}px ${fontFamily}`;
+      const lines = wrapText(ctx, text, fitWidth);
+      const widest = Math.max(...lines.map((line) => ctx.measureText(line).width));
+      if (lines.length <= box.maxLines && widest <= fitWidth) {
+        return {
+          fontSize: size,
+          lines,
+          lineHeight: Math.round(size * box.lineHeight),
+        };
+      }
+      size -= 2;
+    }
+
+    ctx.font = `700 ${hardMin}px ${fontFamily}`;
     return {
-      fontSize: forcedFontSize,
-      lines: lines.slice(0, box.maxLines),
-      lineHeight: Math.round(forcedFontSize * box.lineHeight),
+      fontSize: hardMin,
+      lines: wrapText(ctx, text, fitWidth).slice(0, box.maxLines),
+      lineHeight: Math.round(hardMin * box.lineHeight),
     };
   }
 
@@ -380,7 +433,7 @@ async function renderCardToCanvas({
     ...preset.textBox,
     maxWidth: width * preset.textBox.maxWidth,
     minFont: Math.max(12, Math.round(preset.textBox.minFont * (width / 1080))),
-    maxFont: Math.max(20, Math.round(preset.textBox.maxFont * (width / 1080))),
+    maxFont: Math.round(preset.textBox.maxFont * (width / 1080)),
   };
 
   const fit = fitTextToBox(
@@ -1172,7 +1225,19 @@ async function renderGalleryPreviews() {
 }
 
 function getStudioPreset() {
-  return readPresetControls(getTemplateById(elements.studioTemplateSelect.value));
+  const studioTemplate = getTemplateById(elements.studioTemplateSelect.value);
+  const presetTemplate = readPresetControls(getPresetHelperBaseTemplate());
+
+  return {
+    ...studioTemplate,
+    textBox: {
+      ...presetTemplate.textBox,
+    },
+    textStyle: {
+      ...studioTemplate.textStyle,
+      ...presetTemplate.textStyle,
+    },
+  };
 }
 
 async function renderStudio() {
@@ -1202,6 +1267,7 @@ async function renderStudio() {
     forcedFontSize: Number(elements.studioFontSizeRange.value),
     offsetX: Number(elements.studioOffsetXRange.value) / 100,
     offsetY: Number(elements.studioOffsetYRange.value) / 100,
+    autoShrink: true,
   });
 
   if (token !== renderState.studioToken) {
@@ -1256,6 +1322,7 @@ async function renderStudioBlob() {
     forcedFontSize: Number(elements.studioFontSizeRange.value),
     offsetX: Number(elements.studioOffsetXRange.value) / 100,
     offsetY: Number(elements.studioOffsetYRange.value) / 100,
+    autoShrink: true,
   });
 
   return new Promise((resolve) => offscreen.toBlob((blob) => resolve(blob), "image/png"));
@@ -1460,14 +1527,17 @@ function populateControls() {
     templates.map((template) => ({ value: template.id, label: template.title })),
   );
 
+  populatePresetHelperSelect();
+
   elements.simpleSizeSelect.value = OUTPUT_SIZES[0].id;
   elements.studioSizeSelect.value = OUTPUT_SIZES[0].id;
   elements.studioTemplateSelect.value = templates[0]?.id ?? "";
-  elements.studioFontSelect.value = getSuggestedFontId(elements.studioTemplateSelect.value);
+  elements.presetTemplateSelect.value = PRESET_HELPER_FOLLOW_STUDIO;
   elements.simpleNameInput.value = "Nama Antum";
   elements.studioNameInput.value = "Nama Antum";
 
-  setPresetControlsFromTemplate(getTemplateById(elements.studioTemplateSelect.value));
+  applyStudioDefaults(getTemplateById(elements.studioTemplateSelect.value));
+  setPresetControlsFromTemplate(getPresetHelperBaseTemplate());
 }
 
 async function bootstrap() {
@@ -1480,6 +1550,19 @@ async function bootstrap() {
   };
   state.usageCounter.namespace = state.appConfig.counterNamespace;
   applyAppConfig();
+
+  const versionLinkEl = document.getElementById("footerVersionLink");
+  const buildTimeEl = document.getElementById("footerBuildTime");
+  try {
+    if (versionLinkEl) versionLinkEl.textContent = `v${__APP_VERSION__}`;
+    if (buildTimeEl) {
+      const d = new Date(__BUILD_TIME__);
+      const pad = (n) => String(n).padStart(2, "0");
+      const date = `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+      const time = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+      buildTimeEl.textContent = `Build: ${date}, ${time}`;
+    }
+  } catch (_) { /* build info not available */ }
 
   populateControls();
   initSimpleCards();
@@ -1507,11 +1590,18 @@ async function bootstrap() {
   elements.simpleSizeSelect.addEventListener("change", scheduleSimpleRender);
 
   elements.studioTemplateSelect.addEventListener("change", () => {
-    setPresetControlsFromTemplate(getTemplateById(elements.studioTemplateSelect.value));
-    elements.studioFontSelect.value = getSuggestedFontId(elements.studioTemplateSelect.value);
+    const studioTemplate = getTemplateById(elements.studioTemplateSelect.value);
+    if (elements.presetTemplateSelect.value === PRESET_HELPER_FOLLOW_STUDIO) {
+      setPresetControlsFromTemplate(getPresetHelperBaseTemplate());
+    }
+    applyStudioDefaults(studioTemplate);
     const studioSourceId = getStudioSourceId(elements.studioTemplateSelect.value);
     updateCardUsageBadge(studioSourceId);
     refreshSingleSourceCounter(studioSourceId);
+    scheduleStudioRender();
+  });
+  elements.presetTemplateSelect.addEventListener("change", () => {
+    setPresetControlsFromTemplate(getPresetHelperBaseTemplate());
     scheduleStudioRender();
   });
   elements.studioNameInput.addEventListener("input", scheduleStudioRender);
@@ -1547,10 +1637,8 @@ async function bootstrap() {
   });
 
   elements.studioResetButton.addEventListener("click", () => {
-    elements.studioOffsetXRange.value = "0";
-    elements.studioOffsetYRange.value = "0";
-    elements.studioFontSizeRange.value = "68";
-    setPresetControlsFromTemplate(getTemplateById(elements.studioTemplateSelect.value));
+    applyStudioDefaults(getTemplateById(elements.studioTemplateSelect.value));
+    setPresetControlsFromTemplate(getPresetHelperBaseTemplate());
     scheduleStudioRender();
   });
 
@@ -1619,12 +1707,15 @@ async function bootstrap() {
       elements.studioTemplateSelect,
       templates.map((item) => ({ value: item.id, label: item.title })),
     );
+    populatePresetHelperSelect();
     elements.studioTemplateSelect.value = template.id;
-    elements.studioFontSelect.value = FONT_OPTIONS[0].id;
+    applyStudioDefaults(template);
     const studioSourceId = getStudioSourceId(template.id);
     updateCardUsageBadge(studioSourceId);
     refreshSingleSourceCounter(studioSourceId);
-    setPresetControlsFromTemplate(template);
+    if (elements.presetTemplateSelect.value === PRESET_HELPER_FOLLOW_STUDIO) {
+      setPresetControlsFromTemplate(template);
+    }
     scheduleStudioRender();
   });
 

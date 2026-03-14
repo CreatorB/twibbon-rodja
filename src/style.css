@@ -521,6 +521,12 @@ textarea {
   text-decoration: underline;
 }
 
+.footer-build {
+  margin-bottom: 0;
+  font-size: 11px;
+  color: rgba(20, 37, 31, 0.45);
+}
+
 .heart-green {
   color: #2f9868;
 }

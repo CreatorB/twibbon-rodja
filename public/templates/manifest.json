@@ -34,11 +34,11 @@
       "image": "twibbon-rodja.jpg",
       "textBox": {
         "x": 0.5,
-        "y": 0.735,
+        "y": 0.600,
         "maxWidth": 0.5,
-        "maxLines": 2,
-        "minFont": 22,
-        "maxFont": 42,
+        "maxLines": 3,
+        "minFont": 33,
+        "maxFont": 33,
         "lineHeight": 1.04,
         "align": "center"
       },
@@ -56,9 +56,9 @@
         "x": 0.5,
         "y": 0.810,
         "maxWidth": 0.62,
-        "maxLines": 2,
-        "minFont": 20,
-        "maxFont": 40,
+        "maxLines": 3,
+        "minFont": 33,
+        "maxFont": 33,
         "lineHeight": 1.04,
         "align": "center"
       },
@@ -74,17 +74,17 @@
       "image": "twibbon-syathiby.png",
       "textBox": {
         "x": 0.5,
-        "y": 0.692,
+        "y": 0.715,
         "maxWidth": 0.52,
-        "maxLines": 2,
-        "minFont": 21,
-        "maxFont": 38,
+        "maxLines": 3,
+        "minFont": 33,
+        "maxFont": 33,
         "lineHeight": 1.03,
         "align": "center"
       },
       "textStyle": {
-        "mainColor": "#f0e3b0",
-        "shadowColor": "rgba(9, 52, 35, 0.24)"
+        "mainColor": "#1d7a63",
+        "shadowColor": "rgba(100, 180, 160, 0.2)"
       }
     },
     {
@@ -94,11 +94,11 @@
       "image": "twibbon-kias.png",
       "textBox": {
         "x": 0.5,
-        "y": 0.355,
+        "y": 0.360,
         "maxWidth": 0.52,
-        "maxLines": 2,
-        "minFont": 22,
-        "maxFont": 42,
+        "maxLines": 3,
+        "minFont": 33,
+        "maxFont": 33,
         "lineHeight": 1.06,
         "align": "center"
       },
@@ -114,12 +114,12 @@
       "image": "twibbon-albarkah.jpeg",
       "textBox": {
         "x": 0.105,
-        "y": 0.552,
-        "maxWidth": 0.44,
-        "maxLines": 2,
-        "minFont": 17,
-        "maxFont": 32,
-        "lineHeight": 1,
+        "y": 0.560,
+        "maxWidth": 0.38,
+        "maxLines": 3,
+        "minFont": 33,
+        "maxFont": 33,
+        "lineHeight": 1.08,
         "align": "left"
       },
       "textStyle": {
@@ -136,9 +136,9 @@
         "x": 0.5,
         "y": 0.51,
         "maxWidth": 0.58,
-        "maxLines": 2,
-        "minFont": 20,
-        "maxFont": 40,
+        "maxLines": 3,
+        "minFont": 33,
+        "maxFont": 33,
         "lineHeight": 1.04,
         "align": "center"
       },
@@ -155,10 +155,10 @@
       "textBox": {
         "x": 0.5,
         "y": 0.54,
-        "maxWidth": 0.58,
-        "maxLines": 2,
-        "minFont": 20,
-        "maxFont": 40,
+        "maxWidth": 0.50,
+        "maxLines": 3,
+        "minFont": 33,
+        "maxFont": 33,
         "lineHeight": 1.04,
         "align": "center"
       },
@@ -176,9 +176,9 @@
         "x": 0.5,
         "y": 0.53,
         "maxWidth": 0.58,
-        "maxLines": 2,
-        "minFont": 20,
-        "maxFont": 40,
+        "maxLines": 3,
+        "minFont": 33,
+        "maxFont": 33,
         "lineHeight": 1.04,
         "align": "center"
       },
@@ -194,11 +194,11 @@
       "image": "twibbon-stq-syathiby.jpeg",
       "textBox": {
         "x": 0.5,
-        "y": 0.54,
-        "maxWidth": 0.5,
-        "maxLines": 2,
-        "minFont": 20,
-        "maxFont": 38,
+        "y": 0.55,
+        "maxWidth": 0.44,
+        "maxLines": 3,
+        "minFont": 33,
+        "maxFont": 33,
         "lineHeight": 1.03,
         "align": "center"
       },

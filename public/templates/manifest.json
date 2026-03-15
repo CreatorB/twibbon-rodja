@@ -35,7 +35,7 @@
       "textBox": {
         "x": 0.5,
         "y": 0.600,
-        "maxWidth": 0.5,
+        "maxWidth": 0.62,
         "maxLines": 3,
         "minFont": 33,
         "maxFont": 33,
@@ -75,7 +75,7 @@
       "textBox": {
         "x": 0.5,
         "y": 0.715,
-        "maxWidth": 0.52,
+        "maxWidth": 0.62,
         "maxLines": 3,
         "minFont": 33,
         "maxFont": 33,
@@ -95,7 +95,7 @@
       "textBox": {
         "x": 0.5,
         "y": 0.360,
-        "maxWidth": 0.52,
+        "maxWidth": 0.62,
         "maxLines": 3,
         "minFont": 33,
         "maxFont": 33,
@@ -113,14 +113,14 @@
       "description": "Template unit Albarkah",
       "image": "twibbon-albarkah.jpeg",
       "textBox": {
-        "x": 0.105,
+        "x": 0.420,
         "y": 0.560,
-        "maxWidth": 0.38,
+        "maxWidth": 0.62,
         "maxLines": 3,
         "minFont": 33,
         "maxFont": 33,
         "lineHeight": 1.08,
-        "align": "left"
+        "align": "center"
       },
       "textStyle": {
         "mainColor": "#f5f1cf",
@@ -135,7 +135,7 @@
       "textBox": {
         "x": 0.5,
         "y": 0.51,
-        "maxWidth": 0.58,
+        "maxWidth": 0.62,
         "maxLines": 3,
         "minFont": 33,
         "maxFont": 33,
@@ -155,7 +155,7 @@
       "textBox": {
         "x": 0.5,
         "y": 0.54,
-        "maxWidth": 0.50,
+        "maxWidth": 0.62,
         "maxLines": 3,
         "minFont": 33,
         "maxFont": 33,
@@ -175,7 +175,7 @@
       "textBox": {
         "x": 0.5,
         "y": 0.53,
-        "maxWidth": 0.58,
+        "maxWidth": 0.62,
         "maxLines": 3,
         "minFont": 33,
         "maxFont": 33,
@@ -183,8 +183,8 @@
         "align": "center"
       },
       "textStyle": {
-        "mainColor": "#ffffff",
-        "shadowColor": "rgba(0, 0, 0, 0.35)"
+        "mainColor": "#1d7a63",
+        "shadowColor": "rgba(100, 180, 160, 0.2)"
       }
     },
     {
@@ -195,7 +195,7 @@
       "textBox": {
         "x": 0.5,
         "y": 0.55,
-        "maxWidth": 0.44,
+        "maxWidth": 0.62,
         "maxLines": 3,
         "minFont": 33,
         "maxFont": 33,

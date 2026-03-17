@@ -858,41 +858,163 @@ function enqueueCounterKey(key) {
   updateAllCardUsageBadges();
 }
 
-function counterUrl(mode, key) {
-  const namespace = encodeURIComponent(state.usageCounter.namespace);
-  const safeKey = encodeURIComponent(key);
-  return `https://api.countapi.xyz/${mode}/${namespace}/${safeKey}`;
+// GitHub Gist Counter Implementation
+const GIST_FILENAME = "counter.json";
+
+function getGistToken() {
+  // Read from environment variable
+  return import.meta.env.VITE_GIST_TOKEN || state.appConfig.counterGistToken || "";
 }
 
-async function countApiRequest(mode, key) {
-  const response = await fetch(counterUrl(mode, key), { cache: "no-store" });
-  if (!response.ok) {
-    throw new Error(`CountAPI ${mode} failed`);
+function getGistId() {
+  return state.appConfig.counterGistId || "";
+}
+
+function getGistUrl() {
+  return `https://api.github.com/gists/${getGistId()}`;
+}
+
+async function fetchGist() {
+  const token = getGistToken();
+  const gistId = getGistId();
+  if (!token || !gistId) {
+    console.warn("GitHub Gist not configured");
+    return null;
   }
-  const payload = await response.json();
-  return Number(payload?.value) || 0;
+
+  const response = await fetch(getGistUrl(), {
+    headers: {
+      Authorization: `token ${token}`,
+      Accept: "application/vnd.github.v3+json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Gist fetch failed: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+async function updateGist(content) {
+  const token = getGistToken();
+  const gistId = getGistId();
+  if (!token || !gistId) {
+    console.warn("GitHub Gist not configured");
+    return null;
+  }
+
+  const response = await fetch(getGistUrl(), {
+    method: "PATCH",
+    headers: {
+      Authorization: `token ${token}`,
+      Accept: "application/vnd.github.v3+json",
+    },
+    body: JSON.stringify({
+      files: {
+        [GIST_FILENAME]: {
+          content: JSON.stringify(content, null, 2),
+        },
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Gist update failed: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+async function getGistCounter(key) {
+  try {
+    const gist = await fetchGist();
+    if (!gist || !gist.files || !gist.files[GIST_FILENAME]) {
+      console.log("Gist file not found");
+      return 0;
+    }
+    const content = JSON.parse(gist.files[GIST_FILENAME].content);
+    console.log("Reading Gist counter:", key, content);
+    if (key === "total") return content.total || 0;
+    if (key === "download") return content.download || 0;
+    if (key === "share") return content.share || 0;
+    if (key.startsWith(ITEM_COUNTER_PREFIX)) {
+      const val = content.items?.[key] || 0;
+      console.log("Item counter value:", key, val);
+      return val;
+    }
+    return 0;
+  } catch (e) {
+    console.error("Error reading Gist counter:", e);
+    return 0;
+  }
+}
+
+async function incrementGistCounter(key) {
+  try {
+    const gist = await fetchGist();
+    let content = { total: 0, download: 0, share: 0, items: {} };
+
+    if (gist && gist.files && gist.files[GIST_FILENAME]) {
+      try {
+        content = JSON.parse(gist.files[GIST_FILENAME].content);
+      } catch (parseErr) {
+        console.warn("Failed to parse Gist content, starting fresh:", parseErr);
+      }
+    }
+
+    if (key === "total") content.total = (content.total || 0) + 1;
+    else if (key === "download") content.download = (content.download || 0) + 1;
+    else if (key === "share") content.share = (content.share || 0) + 1;
+    else if (key.startsWith(ITEM_COUNTER_PREFIX)) {
+      content.items = content.items || {};
+      content.items[key] = (content.items[key] || 0) + 1;
+    }
+
+    const result = await updateGist(content);
+    console.log("Gist updated:", key, result);
+    return true;
+  } catch (e) {
+    console.error("Error incrementing Gist counter:", key, e);
+    return false;
+  }
+}
+
+// Counter uses GitHub Gist API
+async function countApiRequest(mode, key) {
+  if (mode === "get") {
+    return getGistCounter(key);
+  }
+  if (mode === "hit") {
+    await incrementGistCounter(key);
+    return getGistCounter(key);
+  }
+  return 0;
 }
 
 async function refreshCountersFromApi() {
   const sources = getTrackedSourceIds();
 
   try {
-    await Promise.all(
-      sources.map(async (sourceId) => {
-        const key = getItemCounterKey(sourceId);
-        const value = await countApiRequest("get", key);
-        state.usageCounter.itemTotals[sourceId] = value;
-      }),
-    );
+    // Load totals
+    state.usageCounter.totals[COUNTER_KEYS.total] = await getGistCounter(COUNTER_KEYS.total);
+    state.usageCounter.totals[COUNTER_KEYS.download] = await getGistCounter(COUNTER_KEYS.download);
+    state.usageCounter.totals[COUNTER_KEYS.share] = await getGistCounter(COUNTER_KEYS.share);
+
+    // Load item counts
+    for (const sourceId of sources) {
+      const key = getItemCounterKey(sourceId);
+      state.usageCounter.itemTotals[sourceId] = await getGistCounter(key);
+    }
+
     state.usageCounter.initialized = true;
     setCounterOffline(false);
     persistCounterState();
-    return true;
-  } catch {
+    updateAllCardUsageBadges();
+  } catch (e) {
+    console.error("Error refreshing counters:", e);
     state.usageCounter.initialized = true;
     setCounterOffline(true);
-    return false;
-  } finally {
     updateAllCardUsageBadges();
   }
 }
@@ -900,14 +1022,11 @@ async function refreshCountersFromApi() {
 async function refreshSingleSourceCounter(sourceId) {
   try {
     const key = getItemCounterKey(sourceId);
-    const value = await countApiRequest("get", key);
-    state.usageCounter.itemTotals[sourceId] = value;
+    state.usageCounter.itemTotals[sourceId] = await getGistCounter(key);
     setCounterOffline(false);
-    persistCounterState();
-  } catch {
-    setCounterOffline(true);
-  } finally {
     updateCardUsageBadge(sourceId);
+  } catch (e) {
+    setCounterOffline(true);
   }
 }
 
@@ -924,57 +1043,36 @@ function applyCounterValue(key, value) {
 }
 
 async function hitCounterKey(key) {
-  try {
-    const value = await countApiRequest("hit", key);
+  // Using GitHub Gist API
+  const success = await incrementGistCounter(key);
+  if (success) {
+    // Small delay to ensure Gist is updated
+    await new Promise(r => setTimeout(r, 300));
+    const value = await getGistCounter(key);
     applyCounterValue(key, value);
+    
+    // Also refresh totals if this was an item counter
+    if (key.startsWith(ITEM_COUNTER_PREFIX)) {
+      const totalVal = await getGistCounter("total");
+      const downloadVal = await getGistCounter("download");
+      const shareVal = await getGistCounter("share");
+      state.usageCounter.totals[COUNTER_KEYS.total] = totalVal;
+      state.usageCounter.totals[COUNTER_KEYS.download] = downloadVal;
+      state.usageCounter.totals[COUNTER_KEYS.share] = shareVal;
+    }
+    
     state.usageCounter.initialized = true;
     setCounterOffline(false);
-    persistCounterState();
     return true;
-  } catch {
-    if (key.startsWith(ITEM_COUNTER_PREFIX)) {
-      const sourceId = getSourceIdByItemCounterKey(key);
-      if (sourceId) {
-        state.usageCounter.itemTotals[sourceId] = (state.usageCounter.itemTotals[sourceId] || 0) + 1;
-      }
-    }
-    enqueueCounterKey(key);
-    setCounterOffline(true);
-    return false;
   }
+  setCounterOffline(true);
+  return false;
 }
 
 async function flushCounterQueue() {
-  if (!state.usageCounter.queue.length) {
-    return true;
-  }
-
-  const pending = [...state.usageCounter.queue];
+  // No-op - using localStorage only, no queue needed
   state.usageCounter.queue = [];
-
-  for (let index = 0; index < pending.length && index < COUNTER_FLUSH_LIMIT; index += 1) {
-    const key = pending[index];
-    try {
-      const value = await countApiRequest("hit", key);
-      applyCounterValue(key, value);
-    } catch {
-      const remaining = pending.slice(index);
-      state.usageCounter.queue = [...remaining, ...state.usageCounter.queue];
-      persistCounterState();
-      setCounterOffline(true);
-      return false;
-    }
-  }
-
-  if (pending.length > COUNTER_FLUSH_LIMIT) {
-    state.usageCounter.queue = [...pending.slice(COUNTER_FLUSH_LIMIT), ...state.usageCounter.queue];
-  }
-
-  state.usageCounter.initialized = true;
-  setCounterOffline(false);
   persistCounterState();
-  updateAllCardUsageBadges();
-  return true;
 }
 
 function isCounterEventAllowed(action, sourceId) {
@@ -1007,10 +1105,6 @@ async function trackUsage(action, sourceId) {
     hitCounterKey(itemKey),
   ]);
 
-  if (!state.usageCounter.offline && state.usageCounter.queue.length) {
-    await flushCounterQueue();
-  }
-
   updateAllCardUsageBadges();
 }
 
@@ -1023,20 +1117,6 @@ async function setupUsageCounter() {
   updateAllCardUsageBadges();
 
   await refreshCountersFromApi();
-  if (state.usageCounter.queue.length) {
-    await flushCounterQueue();
-  }
-
-  window.addEventListener("online", () => {
-    flushCounterQueue();
-    refreshCountersFromApi();
-  });
-
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible" && state.usageCounter.queue.length) {
-      flushCounterQueue();
-    }
-  });
 }
 
 function downloadBlob(blob, filename) {

@@ -185,6 +185,9 @@ export const DEFAULT_GREETING_CARDS = [];
 export const DEFAULT_APP_CONFIG = {
   counterNamespace: "ucapan-rodja-co-id",
   counterEnabled: true,
+  counterType: "gist",
+  counterGistToken: "",
+  counterGistId: "",
   fileNamePrefix: "ycs",
   pageTitle: "YCS Eid Greeting Card",
   heroEyebrow: "YCS Eid Greeting Card",
@@ -334,9 +337,15 @@ function normalizeAppConfig(raw) {
   const footerSourceLinkText = String(raw?.footerSourceLinkText || DEFAULT_APP_CONFIG.footerSourceLinkText).trim();
   const footerSourceLinkHref = String(raw?.footerSourceLinkHref || DEFAULT_APP_CONFIG.footerSourceLinkHref).trim();
 
+  const counterGistToken = String(raw?.counterGistToken || raw?.gistToken || DEFAULT_APP_CONFIG.counterGistToken).trim();
+  const counterGistId = String(raw?.counterGistId || raw?.gistId || DEFAULT_APP_CONFIG.counterGistId).trim();
+
   return {
     counterNamespace: counterNamespace || DEFAULT_APP_CONFIG.counterNamespace,
     counterEnabled: raw?.counterEnabled !== false,
+    counterType: raw?.counterType || DEFAULT_APP_CONFIG.counterType,
+    counterGistToken: counterGistToken,
+    counterGistId: counterGistId,
     fileNamePrefix: fileNamePrefix || DEFAULT_APP_CONFIG.fileNamePrefix,
     pageTitle: pageTitle || DEFAULT_APP_CONFIG.pageTitle,
     heroEyebrow: heroEyebrow || DEFAULT_APP_CONFIG.heroEyebrow,

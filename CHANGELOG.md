@@ -2,6 +2,32 @@
 
 Semua perubahan penting pada project ini dicatat di file ini.
 
+## [1.0.3] - 2026-03-17
+
+### Added
+- Tambah template Al-Barkah Frame (`albarkah-frame`) di manifest dan fallback preset.
+- Tambah counter berbasis GitHub Gist API (mengganti CountAPI yang tidak tersedia).
+- Tambah environment variable `VITE_GIST_TOKEN` untuk keamanan token GitHub.
+- Tambah file `.env.example` sebagai template konfigurasi.
+- Tambah debug logging untuk troubleshooting counter.
+
+### Changed
+- Samakan nilai `textBox.maxWidth` seluruh template YCS di fallback preset (`src/templates.js`) menjadi 0.62 sesuai manifest.
+- Perbaiki posisi `y` beberapa template di fallback preset agar sesuai dengan manifest:
+  - `syathiby-frame`: 0.715
+  - `kias-frame`: 0.360
+  - `stq-syathiby-frame`: 0.55 (diperbaiki dari 0.54)
+- Perbaiki `textStyle.mainColor` template `tk-cahaya-sunnah-frame` di fallback preset menjadi `#1d7a63` sesuai manifest.
+- Hapus dropdown pemilihan ukuran output di Simple dan Studio tab.
+- Counter sekarang update secara real-time tanpa perlu reload halaman.
+- Update README dengan panduan konfigurasi GitHub Gist.
+
+### Removed
+- Hapus `OUTPUT_SIZES` dari `src/templates.js`.
+- Hapus `getSizeById()` dan semua referensi size selector di `src/main.js`.
+- Hapus elemen HTML size select di `index.html`.
+- Hapus dependensi ke countapi.xyz.
+
 ## [1.0.2] - 2026-03-14
 
 ### Changed

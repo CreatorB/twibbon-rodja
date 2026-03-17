@@ -1,6 +1,10 @@
-# YCS Kartu Ucapan
+# YCS Eid Greeting Card
 
 YCS adalah singkatan dari Yayasan Cahaya Sunnah.
+
+[![GitHub Gist](https://img.shields.io/badge/Gist-Counter-blue)](https://gist.github.com/imamsyathiby/667e65c647da97926980d9cc6e2137a9)
+
+<script src="https://gist.github.com/imamsyathiby/667e65c647da97926980d9cc6e2137a9.js"></script>
 
 Web app generator kartu ucapan berbasis Vite dengan 3 tab:
 

@@ -1,6 +1,8 @@
-# YCS Kartu Ucapan
+# YCS Eid Greeting Card
 
 YCS adalah singkatan dari Yayasan Cahaya Sunnah.
+
+[![GitHub Gist](https://img.shields.io/badge/Gist-Counter-blue)](https://gist.github.com/imamsyathiby/667e65c647da97926980d9cc6e2137a9)
 
 Web app generator kartu ucapan berbasis Vite dengan 3 tab:
 
@@ -39,12 +41,53 @@ Build production:
 npm run build
 ```
 
-## Counter Production Namespace
-- Counter CountAPI dikonfigurasi lewat `appConfig.counterNamespace` di `public/templates/manifest.json`.
-- Build atau deploy ulang tidak akan mereset counter selama namespace dan ID template/card tidak diubah.
-- Jika project ini di-clone untuk domain lain, cukup ganti nilai `counterNamespace` agar data counter terpisah.
-- Jika ingin mematikan fitur counter, ubah `appConfig.counterEnabled` menjadi `false`.
-- Jika ingin mengubah prefix nama file hasil download/share, ubah `appConfig.fileNamePrefix`.
+## Counter Configuration
+- Counter menggunakan **GitHub Gist API** (global counter, tidak perlu database).
+- Token disimpan di environment variable `VITE_GIST_TOKEN` untuk keamanan.
+- Gist ID dikonfigurasi di `public/templates/manifest.json`.
+
+### Setup GitHub Gist:
+1. Buat GitHub Personal Access Token (PAT) dengan scope `gist`:
+   - Buka https://github.com/settings/tokens
+   - Klik "Generate new token (classic)"
+   - Beri nama token, centang scope `gist`
+   - Copy token yang dihasilkan
+
+2. Buat Gist publik:
+   - Buka https://gist.github.com
+   - Buat file baru dengan nama `counter.json`
+   - Isi dengan: `{"total":0,"download":0,"share":0,"items":{}}`
+   - Copy Gist ID dari URL (format: `667e65c647da97926980d9cc6e2137a9`)
+
+3. Setup environment variable:
+   - Untuk development: buat file `.env` dengan `VITE_GIST_TOKEN=ghp_xxxx`
+   - Untuk production: setup `VITE_GIST_TOKEN` di hosting (Vercel/Netlify/dll)
+
+4. Konfigurasi Gist ID di `manifest.json`:
+```json
+{
+  "appConfig": {
+    "counterEnabled": true,
+    "counterType": "gist",
+    "counterGistId": "GIST_ID_ANDA"
+  }
+}
+```
+
+### Catatan:
+- Pastikan Gist dalam kondisi **public** agar bisa di-read tanpa auth.
+- Untuk write/update, diperlukan PAT token dengan scope `gist`.
+- Format data di Gist:
+```json
+{
+  "total": 10,
+  "download": 5,
+  "share": 5,
+  "items": {
+    "item_used_simple:rodja-frame": 3
+  }
+}
+```
 
 ## Cara Pakai `appConfig`
 Gunakan `appConfig` di `public/templates/manifest.json` untuk mengubah konfigurasi aplikasi tanpa edit file JavaScript.
@@ -85,8 +128,9 @@ Contoh:
 ```
 
 Keterangan field:
-- `counterNamespace`: namespace CountAPI agar counter tidak bercampur dengan project/domain lain.
-- `counterEnabled`: `true/false` untuk menyalakan atau mematikan fitur counter.
+- `counterNamespace`: identifier untuk membedakan data counter.
+- `counterEnabled`: `true/false` untuk mengaktifkan/nonaktifkan fitur counter.
+- `counterNote`: Catatan metode storage (localStorage).
 - `fileNamePrefix`: prefix nama file saat download/share.
 - `pageTitle`: judul halaman browser.
 - `heroEyebrow`: teks kecil di atas judul hero.
@@ -283,6 +327,7 @@ Contoh minimal preset (fallback di src/templates.js):
 
 ## Best Practice Placeholder Teks
 - Gunakan nilai relatif 0 sampai 1 untuk x, y, maxWidth agar konsisten di semua ukuran output.
+- Output menggunakan ukuran tetap 1080x1350 (Portrait 4:5).
 - Fokuskan textBox untuk area aman yang tidak menabrak ornamen template.
 - Uji minimal 3 skenario:
   - Nama pendek (1-2 kata)

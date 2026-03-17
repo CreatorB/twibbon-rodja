@@ -1,5 +1,5 @@
 import "./style.css";
-import { DEFAULT_APP_CONFIG, DEFAULT_TEMPLATE_PRESETS, FONT_OPTIONS, OUTPUT_SIZES, loadTemplateData } from "./templates.js";
+import { DEFAULT_APP_CONFIG, DEFAULT_TEMPLATE_PRESETS, FONT_OPTIONS, loadTemplateData } from "./templates.js";
 
 const imageCache = new Map();
 const PRESET_HELPER_FOLLOW_STUDIO = "__studio__";
@@ -28,13 +28,11 @@ const elements = {
   footerCreditLink: document.getElementById("footerCreditLink"),
   footerSourceLink: document.getElementById("footerSourceLink"),
   simpleNameInput: document.getElementById("simpleNameInput"),
-  simpleSizeSelect: document.getElementById("simpleSizeSelect"),
   simplePreviewList: document.getElementById("simplePreviewList"),
 
   studioTemplateSelect: document.getElementById("studioTemplateSelect"),
   studioUploadInput: document.getElementById("studioUploadInput"),
   studioNameInput: document.getElementById("studioNameInput"),
-  studioSizeSelect: document.getElementById("studioSizeSelect"),
   studioFontSelect: document.getElementById("studioFontSelect"),
   studioColorInput: document.getElementById("studioColorInput"),
   studioFontSizeRange: document.getElementById("studioFontSizeRange"),
@@ -134,9 +132,8 @@ function debounce(fn, delay = 120) {
   };
 }
 
-function getSizeById(sizeId) {
-  return OUTPUT_SIZES.find((size) => size.id === sizeId) ?? OUTPUT_SIZES[0];
-}
+const OUTPUT_WIDTH = 1080;
+const OUTPUT_HEIGHT = 1350;
 
 function getTemplateById(templateId) {
   return templates.find((template) => template.id === templateId) ?? templates[0] ?? DEFAULT_TEMPLATE_PRESETS[0];
@@ -1174,14 +1171,13 @@ function initGalleryCards() {
 
 async function renderSimplePreviews() {
   const token = ++renderState.simpleToken;
-  const size = getSizeById(elements.simpleSizeSelect.value);
   const previewWidth = 540;
-  const previewHeight = Math.round((size.height / size.width) * previewWidth);
+  const previewHeight = Math.round((OUTPUT_HEIGHT / OUTPUT_WIDTH) * previewWidth);
   const name = elements.simpleNameInput.value.trim() || "Nama Antum";
 
   const jobs = Array.from(simpleCards.values()).map(async ({ template, canvas, canvasShell }) => {
     if (canvasShell) {
-      canvasShell.style.aspectRatio = `${size.width} / ${size.height}`;
+      canvasShell.style.aspectRatio = `${OUTPUT_WIDTH} / ${OUTPUT_HEIGHT}`;
     }
     await renderCardToCanvas({
       canvas,
@@ -1242,14 +1238,13 @@ function getStudioPreset() {
 
 async function renderStudio() {
   const token = ++renderState.studioToken;
-  const size = getSizeById(elements.studioSizeSelect.value);
   const font = getFontById(elements.studioFontSelect.value);
   const preset = getStudioPreset();
   const imageChanged = preset.imagePath !== state.studioLastImagePath || !state.studioPreviewReady;
 
-  elements.studioMeta.textContent = `${size.width} x ${size.height} • ${preset.title}`;
+  elements.studioMeta.textContent = `${OUTPUT_WIDTH} x ${OUTPUT_HEIGHT} • ${preset.title}`;
   if (elements.studioCanvasShell) {
-    elements.studioCanvasShell.style.aspectRatio = `${size.width} / ${size.height}`;
+    elements.studioCanvasShell.style.aspectRatio = `${OUTPUT_WIDTH} / ${OUTPUT_HEIGHT}`;
   }
   if (imageChanged) {
     setCanvasShellLoaded(elements.studioCanvasShell, false);
@@ -1259,8 +1254,8 @@ async function renderStudio() {
     canvas: elements.studioCanvas,
     imagePath: preset.imagePath,
     preset,
-    width: size.width,
-    height: size.height,
+    width: OUTPUT_WIDTH,
+    height: OUTPUT_HEIGHT,
     name: elements.studioNameInput.value.trim() || "Nama Antum",
     fontFamily: font.family,
     mainColor: elements.studioColorInput.value,
@@ -1287,14 +1282,13 @@ async function renderSimpleBlob(templateId) {
     return null;
   }
 
-  const size = getSizeById(elements.simpleSizeSelect.value);
   const offscreen = document.createElement("canvas");
   await renderCardToCanvas({
     canvas: offscreen,
     imagePath: template.imagePath,
     preset: template,
-    width: size.width,
-    height: size.height,
+    width: OUTPUT_WIDTH,
+    height: OUTPUT_HEIGHT,
     name: elements.simpleNameInput.value.trim() || "Nama Antum",
     fontFamily: '"Sora", sans-serif',
     mainColor: template.textStyle?.mainColor,
@@ -1305,7 +1299,6 @@ async function renderSimpleBlob(templateId) {
 }
 
 async function renderStudioBlob() {
-  const size = getSizeById(elements.studioSizeSelect.value);
   const font = getFontById(elements.studioFontSelect.value);
   const preset = getStudioPreset();
   const offscreen = document.createElement("canvas");
@@ -1314,8 +1307,8 @@ async function renderStudioBlob() {
     canvas: offscreen,
     imagePath: preset.imagePath,
     preset,
-    width: size.width,
-    height: size.height,
+    width: OUTPUT_WIDTH,
+    height: OUTPUT_HEIGHT,
     name: elements.studioNameInput.value.trim() || "Nama Antum",
     fontFamily: font.family,
     mainColor: elements.studioColorInput.value,
@@ -1346,15 +1339,13 @@ async function handleSimpleDownload(templateId) {
     alert("Gagal membuat gambar.");
     return;
   }
-  const size = getSizeById(elements.simpleSizeSelect.value);
-  downloadBlob(blob, `${getFileNamePrefix()}-${templateId}-${size.width}x${size.height}.png`);
+  downloadBlob(blob, `${getFileNamePrefix()}-${templateId}-${OUTPUT_WIDTH}x${OUTPUT_HEIGHT}.png`);
   trackUsage("download", `simple:${templateId}`);
 }
 
 async function handleSimpleShare(templateId) {
   const blob = await renderSimpleBlob(templateId);
-  const size = getSizeById(elements.simpleSizeSelect.value);
-  const shared = await shareBlob(blob, `${getFileNamePrefix()}-${templateId}-${size.width}x${size.height}.png`);
+  const shared = await shareBlob(blob, `${getFileNamePrefix()}-${templateId}-${OUTPUT_WIDTH}x${OUTPUT_HEIGHT}.png`);
   if (shared) {
     trackUsage("share", `simple:${templateId}`);
   }
@@ -1508,16 +1499,6 @@ function bindStudioDrag(scheduleStudioRender) {
 
 function populateControls() {
   buildSelectOptions(
-    elements.simpleSizeSelect,
-    OUTPUT_SIZES.map((size) => ({ value: size.id, label: `${size.label} (${size.width} x ${size.height})` })),
-  );
-
-  buildSelectOptions(
-    elements.studioSizeSelect,
-    OUTPUT_SIZES.map((size) => ({ value: size.id, label: `${size.label} (${size.width} x ${size.height})` })),
-  );
-
-  buildSelectOptions(
     elements.studioFontSelect,
     FONT_OPTIONS.map((font) => ({ value: font.id, label: font.label })),
   );
@@ -1529,8 +1510,6 @@ function populateControls() {
 
   populatePresetHelperSelect();
 
-  elements.simpleSizeSelect.value = OUTPUT_SIZES[0].id;
-  elements.studioSizeSelect.value = OUTPUT_SIZES[0].id;
   elements.studioTemplateSelect.value = templates[0]?.id ?? "";
   elements.presetTemplateSelect.value = PRESET_HELPER_FOLLOW_STUDIO;
   elements.simpleNameInput.value = "Nama Antum";
@@ -1587,7 +1566,6 @@ async function bootstrap() {
   bindStudioDrag(scheduleStudioRender);
 
   elements.simpleNameInput.addEventListener("input", scheduleSimpleRender);
-  elements.simpleSizeSelect.addEventListener("change", scheduleSimpleRender);
 
   elements.studioTemplateSelect.addEventListener("change", () => {
     const studioTemplate = getTemplateById(elements.studioTemplateSelect.value);
@@ -1605,7 +1583,6 @@ async function bootstrap() {
     scheduleStudioRender();
   });
   elements.studioNameInput.addEventListener("input", scheduleStudioRender);
-  elements.studioSizeSelect.addEventListener("change", scheduleStudioRender);
   elements.studioFontSelect.addEventListener("change", scheduleStudioRender);
   elements.studioColorInput.addEventListener("input", scheduleStudioRender);
   elements.studioFontSizeRange.addEventListener("input", scheduleStudioRender);
@@ -1648,9 +1625,8 @@ async function bootstrap() {
       alert("Gagal membuat gambar.");
       return;
     }
-    const size = getSizeById(elements.studioSizeSelect.value);
     const template = getStudioPreset();
-    downloadBlob(blob, `${getFileNamePrefix()}-studio-${template.id}-${size.width}x${size.height}.png`);
+    downloadBlob(blob, `${getFileNamePrefix()}-studio-${template.id}-${OUTPUT_WIDTH}x${OUTPUT_HEIGHT}.png`);
     trackUsage("download", `studio:${template.id}`);
   });
 
@@ -1659,9 +1635,8 @@ async function bootstrap() {
     if (!blob) {
       return;
     }
-    const size = getSizeById(elements.studioSizeSelect.value);
     const template = getStudioPreset();
-    const shared = await shareBlob(blob, `${getFileNamePrefix()}-studio-${template.id}-${size.width}x${size.height}.png`);
+    const shared = await shareBlob(blob, `${getFileNamePrefix()}-studio-${template.id}-${OUTPUT_WIDTH}x${OUTPUT_HEIGHT}.png`);
     if (shared) {
       trackUsage("share", `studio:${template.id}`);
     }

@@ -7,7 +7,7 @@ export const DEFAULT_TEMPLATE_PRESETS = [
     textBox: {
       x: 0.5,
       y: 0.600,
-      maxWidth: 0.5,
+      maxWidth: 0.62,
       maxLines: 3,
       minFont: 33,
       maxFont: 33,
@@ -47,7 +47,7 @@ export const DEFAULT_TEMPLATE_PRESETS = [
     textBox: {
       x: 0.5,
       y: 0.715,
-      maxWidth: 0.52,
+      maxWidth: 0.62,
       maxLines: 3,
       minFont: 33,
       maxFont: 33,
@@ -67,7 +67,7 @@ export const DEFAULT_TEMPLATE_PRESETS = [
     textBox: {
       x: 0.5,
       y: 0.360,
-      maxWidth: 0.52,
+      maxWidth: 0.62,
       maxLines: 3,
       minFont: 33,
       maxFont: 33,
@@ -80,6 +80,26 @@ export const DEFAULT_TEMPLATE_PRESETS = [
     },
   },
   {
+    id: "albarkah-frame",
+    title: "Al-Barkah Frame",
+    description: "Template unit Albarkah",
+    imagePath: "/templates/ycs-frame/twibbon-albarkah.jpeg",
+    textBox: {
+      x: 0.420,
+      y: 0.560,
+      maxWidth: 0.62,
+      maxLines: 3,
+      minFont: 33,
+      maxFont: 33,
+      lineHeight: 1.08,
+      align: "center",
+    },
+    textStyle: {
+      mainColor: "#f5f1cf",
+      shadowColor: "rgba(28, 80, 57, 0.22)",
+    },
+  },
+  {
     id: "pkbm-cahaya-sunnah-frame",
     title: "PKBM Cahaya Sunnah Frame",
     description: "Template unit PKBM Cahaya Sunnah",
@@ -87,7 +107,7 @@ export const DEFAULT_TEMPLATE_PRESETS = [
     textBox: {
       x: 0.5,
       y: 0.51,
-      maxWidth: 0.58,
+      maxWidth: 0.62,
       maxLines: 3,
       minFont: 33,
       maxFont: 33,
@@ -107,7 +127,7 @@ export const DEFAULT_TEMPLATE_PRESETS = [
     textBox: {
       x: 0.5,
       y: 0.54,
-      maxWidth: 0.50,
+      maxWidth: 0.62,
       maxLines: 3,
       minFont: 33,
       maxFont: 33,
@@ -127,7 +147,7 @@ export const DEFAULT_TEMPLATE_PRESETS = [
     textBox: {
       x: 0.5,
       y: 0.53,
-      maxWidth: 0.58,
+      maxWidth: 0.62,
       maxLines: 3,
       minFont: 33,
       maxFont: 33,
@@ -135,8 +155,8 @@ export const DEFAULT_TEMPLATE_PRESETS = [
       align: "center",
     },
     textStyle: {
-      mainColor: "#ffffff",
-      shadowColor: "rgba(0, 0, 0, 0.35)",
+      mainColor: "#1d7a63",
+      shadowColor: "rgba(100, 180, 160, 0.2)",
     },
   },
   {
@@ -146,8 +166,8 @@ export const DEFAULT_TEMPLATE_PRESETS = [
     imagePath: "/templates/ycs-frame/twibbon-stq-syathiby.jpeg",
     textBox: {
       x: 0.5,
-      y: 0.54,
-      maxWidth: 0.44,
+      y: 0.55,
+      maxWidth: 0.62,
       maxLines: 3,
       minFont: 33,
       maxFont: 33,
@@ -190,11 +210,6 @@ export const DEFAULT_APP_CONFIG = {
   footerSourceLinkHref: "https://github.com/CreatorB/twibbon-rodja",
 };
 
-export const OUTPUT_SIZES = [
-  { id: "1080x1350", label: "Portrait 4:5", width: 1080, height: 1350 },
-  { id: "1080x1080", label: "Square 1:1", width: 1080, height: 1080 },
-  { id: "1080x1920", label: "Story 9:16", width: 1080, height: 1920 },
-];
 
 export const FONT_OPTIONS = [
   { id: "sora", label: "Sora", family: '"Sora", sans-serif' },

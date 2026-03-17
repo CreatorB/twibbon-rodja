@@ -4,6 +4,8 @@ YCS adalah singkatan dari Yayasan Cahaya Sunnah.
 
 [![GitHub Gist](https://img.shields.io/badge/Gist-Counter-blue)](https://gist.github.com/imamsyathiby/667e65c647da97926980d9cc6e2137a9)
 
+LIVE DEMO : [https://ucapan.rodja.co.id](https://ucapan.rodja.co.id)
+
 Web app generator kartu ucapan berbasis Vite dengan 3 tab:
 
 1. Simple
